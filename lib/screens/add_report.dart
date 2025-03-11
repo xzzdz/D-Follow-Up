@@ -10,6 +10,7 @@ import 'home.dart';
 import 'login.dart';
 import 'dart:html' as html;
 import 'dart:typed_data';
+import 'package:intl/intl.dart';
 
 class AddReport extends StatefulWidget {
   const AddReport({super.key});
@@ -26,6 +27,7 @@ class _AddReportState extends State<AddReport> {
   final TextEditingController _locationController = TextEditingController();
   String _selectedType = 'ไฟฟ้า';
   String _selectedStatus = 'รอดำเนินการ'; //รอดำเนินการ
+  // DateTime _selectedDate = DateTime.now();
   DateTime _selectedDate = DateTime.now();
 
   List<String> types = ['ไฟฟ้า', 'ประปา', 'สวน', 'แอร์', 'อื่นๆ'];
@@ -33,6 +35,34 @@ class _AddReportState extends State<AddReport> {
 
   dynamic _selectedImage; // Change to dynamic for web image handling
   String _imageFileName = '';
+
+  Future<void> _selectDateTime(BuildContext context) async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+
+    if (pickedDate != null) {
+      TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.fromDateTime(_selectedDate),
+      );
+
+      if (pickedTime != null) {
+        setState(() {
+          _selectedDate = DateTime(
+            pickedDate.year,
+            pickedDate.month,
+            pickedDate.day,
+            pickedTime.hour,
+            pickedTime.minute,
+          );
+        });
+      }
+    }
+  }
 
   Future<void> _loadUserName() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -64,8 +94,7 @@ class _AddReportState extends State<AddReport> {
 
   Future<void> _submitReport() async {
     if (_formKey.currentState!.validate()) {
-      String url =
-          "http://www.comdept.cmru.ac.th/64143168/hotel_app_php/add_report.php";
+      String url = "http://192.168.1.13/hotel_app_php/add_report.php";
 
       var request = http.MultipartRequest('POST', Uri.parse(url));
       request.fields['username'] = username ?? '';
@@ -187,7 +216,7 @@ class _AddReportState extends State<AddReport> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'เพิ่มรายการแจ้งซ่อม',
+                        'บันทึกรายละเอียดการติดตาม',
                         style: TextStyle(
                           fontSize: 26,
                           fontWeight: FontWeight.bold,
@@ -261,18 +290,10 @@ class _AddReportState extends State<AddReport> {
                             const SizedBox(height: 16),
                             Row(
                               children: [
-                                const Icon(
-                                  Icons.calendar_today,
-                                  color: Colors.black87,
-                                  size: 20,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  "วันที่: ${_selectedDate.toLocal().toString().split(' ')[0]}",
-                                  style: const TextStyle(
-                                    fontFamily: Font_.Fonts_T,
-                                    color: Colors.black87,
-                                  ),
+                                TextButton.icon(
+                                  onPressed: () => _selectDateTime(context),
+                                  icon: const Icon(Icons.calendar_today),
+                                  label: const Text("เลือกวันที่และเวลา"),
                                 ),
                               ],
                             ),

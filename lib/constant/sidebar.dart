@@ -85,7 +85,7 @@ class Sidebar extends StatelessWidget {
 
           ListTile(
             leading: const Icon(Icons.list),
-            title: const Text("รายการแจ้งซ่อม",
+            title: const Text("รายการติดตามลูกค้า",
                 style: TextStyle(fontFamily: Font_.Fonts_T)),
             onTap: () {
               Navigator.pushReplacement(
@@ -99,7 +99,21 @@ class Sidebar extends StatelessWidget {
           const Divider(),
           ListTile(
             leading: const Icon(Icons.add),
-            title: const Text("เพิ่มการแจ้งซ่อม",
+            title: const Text("เพิ่มรายละเอียด",
+                style: TextStyle(fontFamily: Font_.Fonts_T)),
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AddReport(),
+                ),
+              );
+            },
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.add),
+            title: const Text("ทะเบียนลูกค้า",
                 style: TextStyle(fontFamily: Font_.Fonts_T)),
             onTap: () {
               Navigator.pushReplacement(

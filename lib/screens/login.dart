@@ -24,8 +24,7 @@ class _LoginState extends State<Login> {
   bool _obscurePassword = true; // กำหนดให้รหัสผ่านไม่แสดงเริ่มต้น
 
   Future sign_in() async {
-    String url =
-        "http://www.comdept.cmru.ac.th/64143168/hotel_app_php/login.php";
+    String url = "http://192.168.1.13/hotel_app_php/login.php";
     final response = await http.post(Uri.parse(url), body: {
       'email': email.text,
       'password': password.text,
@@ -144,59 +143,59 @@ class _LoginState extends State<Login> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Image.asset(
-                                  'assets/img/111.png',
+                                  'assets/img/DFU.png',
                                   width: 300,
                                 ),
                                 // const SizedBox(height: 10),
-                                Text(
-                                  'ระบบแจ้งซ่อม',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.grey,
-                                    fontFamily: Font_.Fonts_T,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  'โรงแรมเดอะแคนนาส เชียงใหม่',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.grey,
-                                    fontFamily: Font_.Fonts_T,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                                // Text(
+                                //   'ระบบแจ้งซ่อม',
+                                //   style: TextStyle(
+                                //     fontSize: 16,
+                                //     color: Colors.grey,
+                                //     fontFamily: Font_.Fonts_T,
+                                //     fontWeight: FontWeight.bold,
+                                //   ),
+                                // ),
+                                // Text(
+                                //   'โรงแรมเดอะแคนนาส เชียงใหม่',
+                                //   style: TextStyle(
+                                //     fontSize: 16,
+                                //     color: Colors.grey,
+                                //     fontFamily: Font_.Fonts_T,
+                                //     fontWeight: FontWeight.bold,
+                                //   ),
+                                // ),
                               ],
                             ),
-                            const SizedBox(width: 30),
+                            const SizedBox(width: 40),
                             _buildLoginForm(),
                           ],
                         ),
                       ] else ...[
                         // แสดง Column สำหรับหน้าจอเล็ก
                         Image.asset(
-                          'assets/img/111.png',
+                          'assets/img/DFU.png',
                           width: 200, // ลดขนาดโลโก้ในหน้าจอเล็ก
                         ),
                         const SizedBox(height: 10),
-                        Text(
-                          'แอปพลิเคชันระบบแจ้งซ่อม',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey,
-                            fontFamily: Font_.Fonts_T,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          'โรงแรมเดอะแคนนาส เชียงใหม่',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey,
-                            fontFamily: Font_.Fonts_T,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        // Text(
+                        //   'แอปพลิเคชันระบบแจ้งซ่อม',
+                        //   style: TextStyle(
+                        //     fontSize: 16,
+                        //     color: Colors.grey,
+                        //     fontFamily: Font_.Fonts_T,
+                        //     fontWeight: FontWeight.bold,
+                        //   ),
+                        // ),
+                        // Text(
+                        //   'โรงแรมเดอะแคนนาส เชียงใหม่',
+                        //   style: TextStyle(
+                        //     fontSize: 16,
+                        //     color: Colors.grey,
+                        //     fontFamily: Font_.Fonts_T,
+                        //     fontWeight: FontWeight.bold,
+                        //   ),
+                        // ),
                         const SizedBox(height: 20),
                         _buildLoginForm(),
                       ],
@@ -215,6 +214,7 @@ class _LoginState extends State<Login> {
   Widget _buildLoginForm() {
     return Column(
       children: [
+        const SizedBox(height: 70),
         SizedBox(
           width: 300,
           height: 60,

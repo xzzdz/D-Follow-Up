@@ -29,14 +29,42 @@ class _HomepageWebState extends State<HomepageWeb> {
     'รอดำเนินการ',
     'กำลังดำเนินการ',
     'เสร็จสิ้น',
-    'ส่งซ่อมภายนอก'
   ];
+
   bool isLoading = true;
   List<dynamic> reports = [];
 
+  // ตัวแปรสำหรับตัวกรองเดือนและปี
+  String? selectedMonth = 'ทั้งหมด';
+  String? selectedYear = 'ทั้งหมด';
+
+  List<String> months = [
+    'ทั้งหมด',
+    '01',
+    '02',
+    '03',
+    '04',
+    '05',
+    '06',
+    '07',
+    '08',
+    '09',
+    '10',
+    '11',
+    '12'
+  ];
+
+  List<String> years = ['ทั้งหมด'];
+  void generateYears() {
+    int currentYear = DateTime.now().year;
+    for (int i = 0; i < 5; i++) {
+      years.add((currentYear - i).toString());
+    }
+  }
+
   // ฟังก์ชันในการดึงข้อมูลทั้งหมดจาก API
   Future<List<dynamic>> allReport() async {
-    var url = "http://www.comdept.cmru.ac.th/64143168/hotel_app_php/report.php";
+    var url = "http://192.168.1.13/hotel_app_php/report.php";
     final response = await http.post(Uri.parse(url));
 
     if (response.statusCode == 200) {
@@ -53,8 +81,7 @@ class _HomepageWebState extends State<HomepageWeb> {
     int reportId = int.parse(id);
 
     final response = await http.post(
-      Uri.parse(
-          'http://www.comdept.cmru.ac.th/64143168/hotel_app_php/delete_report.php'),
+      Uri.parse('http://192.168.1.13/hotel_app_php/delete_report.php'),
       body: {'id': reportId.toString()},
     );
 
@@ -104,6 +131,7 @@ class _HomepageWebState extends State<HomepageWeb> {
   void initState() {
     super.initState();
     _loadUserName();
+    generateYears();
   }
 
   @override
@@ -142,10 +170,17 @@ class _HomepageWebState extends State<HomepageWeb> {
                   }
 
                   final filteredData = snapshot.data!.where((item) {
+                    DateTime reportDate = DateTime.parse(item['date']);
                     final matchesType = selectedType == 'ทั้งหมด' ||
                         item['type'] == selectedType;
                     final matchesStatus = selectedStatus == 'ทั้งหมด' ||
                         item['status'] == selectedStatus;
+                    final matchesMonth = selectedMonth == 'ทั้งหมด' ||
+                        reportDate.month.toString().padLeft(2, '0') ==
+                            selectedMonth;
+                    final matchesYear = selectedYear == 'ทั้งหมด' ||
+                        reportDate.year.toString() == selectedYear;
+
                     final matchesSearch = searchText.isEmpty ||
                         item['detail']
                             .toString()
@@ -175,7 +210,11 @@ class _HomepageWebState extends State<HomepageWeb> {
                             .toString()
                             .toLowerCase()
                             .contains(searchText.toLowerCase());
-                    return matchesType && matchesStatus && matchesSearch;
+                    return matchesType &&
+                        matchesStatus &&
+                        matchesSearch &&
+                        matchesMonth &&
+                        matchesYear;
                   }).toList();
 
                   int rowsPerPage = 5; // กำหนดจำนวนแถวต่อหน้า
@@ -189,7 +228,7 @@ class _HomepageWebState extends State<HomepageWeb> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "รายการแจ้งซ่อม",
+                              "รายการติดตามลูกค้า",
                               style: TextStyle(
                                 fontSize: 26,
                                 fontWeight: FontWeight.bold,
@@ -237,15 +276,15 @@ class _HomepageWebState extends State<HomepageWeb> {
                                       color: Colors.green,
                                       icon: Icons.check_circle,
                                     ),
-                                    _buildDashboardItemWithStyle(
-                                      title: "ส่งซ่อมภายนอก",
-                                      count: filteredData
-                                          .where((item) =>
-                                              item['status'] == 'ส่งซ่อมภายนอก')
-                                          .length,
-                                      color: Colors.red,
-                                      icon: Icons.hardware,
-                                    ),
+                                    // _buildDashboardItemWithStyle(
+                                    //   title: "ส่งซ่อมภายนอก",
+                                    //   count: filteredData
+                                    //       .where((item) =>
+                                    //           item['status'] == 'ส่งซ่อมภายนอก')
+                                    //       .length,
+                                    //   color: Colors.red,
+                                    //   icon: Icons.hardware,
+                                    // ),
                                     _buildDashboardItemWithStyle(
                                       title: "ทั้งหมด",
                                       count: filteredData
@@ -306,6 +345,31 @@ class _HomepageWebState extends State<HomepageWeb> {
                                     });
                                   }),
                                 ),
+                                const SizedBox(width: 16),
+                                Container(
+                                  width: 120,
+                                  child: Expanded(
+                                    child: _buildDropdown(
+                                        "เดือน", months, selectedMonth,
+                                        (value) {
+                                      setState(() {
+                                        selectedMonth = value;
+                                      });
+                                    }),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Container(
+                                  width: 120,
+                                  child: Expanded(
+                                    child: _buildDropdown(
+                                        "ปี", years, selectedYear, (value) {
+                                      setState(() {
+                                        selectedYear = value;
+                                      });
+                                    }),
+                                  ),
+                                ),
                               ],
                             ),
                             const SizedBox(height: 16),
@@ -330,7 +394,7 @@ class _HomepageWebState extends State<HomepageWeb> {
                                               columns: const [
                                                 DataColumn(
                                                   label: Text(
-                                                    "วันที่",
+                                                    "วันที่ เวลา",
                                                     style: TextStyle(
                                                         fontWeight:
                                                             FontWeight.bold),
@@ -346,7 +410,7 @@ class _HomepageWebState extends State<HomepageWeb> {
                                                 // ),
                                                 DataColumn(
                                                   label: Text(
-                                                    "ประเภท",
+                                                    "ชื่อลูกค้า",
                                                     style: TextStyle(
                                                         fontWeight:
                                                             FontWeight.bold),
@@ -354,7 +418,7 @@ class _HomepageWebState extends State<HomepageWeb> {
                                                 ),
                                                 DataColumn(
                                                   label: Text(
-                                                    "สถานที่",
+                                                    "เบอร์โทรติดต่อ",
                                                     style: TextStyle(
                                                         fontWeight:
                                                             FontWeight.bold),
@@ -362,7 +426,15 @@ class _HomepageWebState extends State<HomepageWeb> {
                                                 ),
                                                 DataColumn(
                                                   label: Text(
-                                                    "รายละเอียด",
+                                                    "วินิจฉัย",
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                ),
+                                                DataColumn(
+                                                  label: Text(
+                                                    "ระยะเวลารอดำเนินการ",
                                                     style: TextStyle(
                                                         fontWeight:
                                                             FontWeight.bold),
@@ -421,25 +493,28 @@ class _HomepageWebState extends State<HomepageWeb> {
 
                                                   DataCell(
                                                       Text(item['location'])),
+                                                  DataCell(Text(item['type'])),
+                                                  // DataCell(
+                                                  //   SizedBox(
+                                                  //     width:
+                                                  //         200, // กำหนดความกว้างที่ต้องการ
+                                                  //     child: Text(
+                                                  //       item['detail'].length >
+                                                  //               20
+                                                  //           ? item['detail']
+                                                  //                   .substring(
+                                                  //                       0, 20) +
+                                                  //               '...'
+                                                  //           : item[
+                                                  //               'detail'], // ตัดข้อความที่เกิน 20 ตัวอักษร
+                                                  //       overflow: TextOverflow
+                                                  //           .ellipsis,
+                                                  //       maxLines: 1,
+                                                  //     ),
+                                                  //   ),
+                                                  // ),
                                                   DataCell(
-                                                    SizedBox(
-                                                      width:
-                                                          200, // กำหนดความกว้างที่ต้องการ
-                                                      child: Text(
-                                                        item['detail'].length >
-                                                                20
-                                                            ? item['detail']
-                                                                    .substring(
-                                                                        0, 20) +
-                                                                '...'
-                                                            : item[
-                                                                'detail'], // ตัดข้อความที่เกิน 20 ตัวอักษร
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                        maxLines: 1,
-                                                      ),
-                                                    ),
-                                                  ),
+                                                      Text(item['location'])),
                                                   DataCell(Row(
                                                     children: [
                                                       // const SizedBox(width: 8),

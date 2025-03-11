@@ -38,8 +38,7 @@ class _ProfileState extends State<Profile> {
   TextEditingController telController = TextEditingController();
 
   Future<void> fetchUsers() async {
-    String url =
-        "http://www.comdept.cmru.ac.th/64143168/hotel_app_php/get_users.php";
+    String url = "http://192.168.1.13/hotel_app_php/get_users.php";
 
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
@@ -59,8 +58,7 @@ class _ProfileState extends State<Profile> {
   }
 
   Future<void> editUser(String id) async {
-    String url =
-        "http://www.comdept.cmru.ac.th/64143168/hotel_app_php/edit_user.php";
+    String url = "http://192.168.1.13/hotel_app_php/edit_user.php";
 
     // สร้าง body สำหรับส่งข้อมูล
     final Map<String, String> body = {

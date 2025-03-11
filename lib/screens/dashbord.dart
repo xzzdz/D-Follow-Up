@@ -21,8 +21,7 @@ class _DashbordState extends State<Dashbord> {
   String selectedYear = DateTime.now().year.toString(); // กำหนดปีปัจจุบัน
 
   Future<List<dynamic>> fetchReports() async {
-    const url =
-        "http://www.comdept.cmru.ac.th/64143168/hotel_app_php/report.php";
+    const url = "http://192.168.1.13/hotel_app_php/report.php";
     final response = await http.post(Uri.parse(url));
 
     if (response.statusCode == 200) {
@@ -202,44 +201,43 @@ class _DashbordState extends State<Dashbord> {
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  _buildSectionTitle(
-                                      "จำนวนการแจ้งซ่อมแต่ละเดือน"),
+                                  _buildSectionTitle("จำนวนการติดตามลูกค้า"),
                                   const SizedBox(height: 16),
                                   _buildBarChartm(processDataByMonth(reports)),
                                   const SizedBox(height: 20),
                                   Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                    // mainAxisAlignment:
+                                    //     MainAxisAlignment.spaceBetween,
                                     children: [
+                                      // Expanded(
+                                      //   flex: 5,
+                                      //   child: Column(
+                                      //     crossAxisAlignment:
+                                      //         CrossAxisAlignment.start,
+                                      //     children: [
+                                      //       const Text(
+                                      //         "ประเภท",
+                                      //         style: TextStyle(
+                                      //           fontSize: 18,
+                                      //           fontWeight: FontWeight.bold,
+                                      //           color: Colors.black87,
+                                      //         ),
+                                      //       ),
+                                      //       const SizedBox(height: 16),
+                                      //       _buildBarChartt(typeData),
+                                      //     ],
+                                      //   ),
+                                      // ),
+                                      // const SizedBox(width: 30),
                                       Expanded(
-                                        flex: 5,
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            const Text(
-                                              "ประเภท",
-                                              style: TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.black87,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 16),
-                                            _buildBarChartt(typeData),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(width: 30),
-                                      Expanded(
-                                        flex: 5,
+                                        // flex: 5,
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
                                             const SizedBox(height: 60),
                                             const Text(
-                                              "สถานะ",
+                                              "สถานะดําเนินการ",
                                               style: TextStyle(
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.bold,
@@ -493,14 +491,12 @@ class _DashbordState extends State<Dashbord> {
       'รอดำเนินการ',
       'กำลังดำเนินการ',
       'เสร็จสิ้น',
-      'ส่งซ่อมภายนอก'
     ];
 
     Map<String, Color> sectionColors = {
       'รอดำเนินการ': Colors.orange[300]!,
       'กำลังดำเนินการ': Colors.blue[300]!,
       'เสร็จสิ้น': Colors.green[300]!,
-      'ส่งซ่อมภายนอก': Colors.red[300]!,
     };
 
     return Column(
