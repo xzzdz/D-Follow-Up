@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../constant/api.dart';
 import '../constant/color_font.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -24,7 +25,7 @@ class _LoginState extends State<Login> {
   bool _obscurePassword = true; // กำหนดให้รหัสผ่านไม่แสดงเริ่มต้น
 
   Future sign_in() async {
-    String url = "http://192.168.1.13/hotel_app_php/login.php";
+    String url = Api.login; // เรียกใช้ url จาก Api
     final response = await http.post(Uri.parse(url), body: {
       'email': email.text,
       'password': password.text,

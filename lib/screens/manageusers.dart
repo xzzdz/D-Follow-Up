@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../constant/api.dart';
 import '../constant/color_font.dart';
 import '../constant/form_add_users.dart';
 import '../constant/sidebar.dart';
@@ -43,7 +44,7 @@ class _AddUsersState extends State<ManageUsers> {
 
   // Function to fetch users
   Future<void> fetchUsers() async {
-    String url = "http://192.168.1.13/hotel_app_php/get_users.php";
+    String url = Api.get_users;
 
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
@@ -63,7 +64,7 @@ class _AddUsersState extends State<ManageUsers> {
 
   // Function to add users
   Future<void> AddUsers() async {
-    String url = "http://192.168.1.13/hotel_app_php/add_users.php";
+    String url = Api.add_user;
 
     final response = await http.post(Uri.parse(url), body: {
       'name': nameController.text,
@@ -88,7 +89,7 @@ class _AddUsersState extends State<ManageUsers> {
 
   // Function to delete a user
   Future<void> deleteUser(String id) async {
-    String url = "http://192.168.1.13/hotel_app_php/delete_user.php";
+    String url = Api.delete_user;
 
     final response = await http.post(Uri.parse(url), body: {
       'id': id,
@@ -110,7 +111,7 @@ class _AddUsersState extends State<ManageUsers> {
   }
 
   Future<void> editUser(String id) async {
-    String url = "http://192.168.1.13/hotel_app_php/edit_user.php";
+    String url = Api.edit_user;
 
     // สร้าง body สำหรับส่งข้อมูล
     final Map<String, String> body = {

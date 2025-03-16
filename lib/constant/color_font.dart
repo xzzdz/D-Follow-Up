@@ -10,3 +10,4 @@ class FontWeight_ {
 class Font_ {
   static const Fonts_T = 'LINESeed2';
 }
+

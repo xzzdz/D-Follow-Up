@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:fl_chart/fl_chart.dart';
 
+import '../constant/api.dart';
 import '../constant/color_font.dart';
 import '../constant/sidebar.dart';
 import 'login.dart';
@@ -21,7 +22,7 @@ class _DashbordState extends State<Dashbord> {
   String selectedYear = DateTime.now().year.toString(); // กำหนดปีปัจจุบัน
 
   Future<List<dynamic>> fetchReports() async {
-    const url = "http://192.168.1.13/hotel_app_php/report.php";
+    const url = Api.report;
     final response = await http.post(Uri.parse(url));
 
     if (response.statusCode == 200) {

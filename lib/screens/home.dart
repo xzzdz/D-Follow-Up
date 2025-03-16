@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../constant/api.dart';
 import '../constant/color_font.dart';
 import '../constant/sidebar.dart';
 import 'detail.dart';
@@ -64,7 +65,7 @@ class _HomepageWebState extends State<HomepageWeb> {
 
   // ฟังก์ชันในการดึงข้อมูลทั้งหมดจาก API
   Future<List<dynamic>> allReport() async {
-    var url = "http://192.168.1.13/hotel_app_php/report.php";
+    var url = Api.report;
     final response = await http.post(Uri.parse(url));
 
     if (response.statusCode == 200) {
@@ -81,7 +82,7 @@ class _HomepageWebState extends State<HomepageWeb> {
     int reportId = int.parse(id);
 
     final response = await http.post(
-      Uri.parse('http://192.168.1.13/hotel_app_php/delete_report.php'),
+      Uri.parse(Api.delete_report),
       body: {'id': reportId.toString()},
     );
 
@@ -134,6 +135,25 @@ class _HomepageWebState extends State<HomepageWeb> {
     generateYears();
   }
 
+  String _calculateHoursBetween(String startTime, String? completedTime) {
+    try {
+      DateTime start = DateTime.parse(startTime); // เวลาที่แจ้งซ่อม
+      DateTime end = (completedTime != null && completedTime.isNotEmpty)
+          ? DateTime.parse(completedTime) // เวลาที่ซ่อมเสร็จ
+          : DateTime.now(); // ถ้าไม่มีข้อมูล ให้ใช้เวลาปัจจุบันแทน
+
+      Duration difference = end.difference(start); // คำนวณเวลาที่ใช้ไป
+
+      if (difference.inHours < 1) {
+        return 'น้อยกว่า 1 ชั่วโมง'; // ถ้าน้อยกว่า 1 ชั่วโมง
+      } else {
+        return '${difference.inHours} ชั่วโมง'; // แสดงผลเป็นชั่วโมง
+      }
+    } catch (e) {
+      return '-'; // กรณีข้อมูลผิดพลาด
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -182,34 +202,10 @@ class _HomepageWebState extends State<HomepageWeb> {
                         reportDate.year.toString() == selectedYear;
 
                     final matchesSearch = searchText.isEmpty ||
-                        item['detail']
+                        item.values.any((value) => value
                             .toString()
                             .toLowerCase()
-                            .contains(searchText.toLowerCase()) ||
-                        item['location']
-                            .toString()
-                            .toLowerCase()
-                            .contains(searchText.toLowerCase()) ||
-                        item['date']
-                            .toString()
-                            .toLowerCase()
-                            .contains(searchText.toLowerCase()) ||
-                        item['type']
-                            .toString()
-                            .toLowerCase()
-                            .contains(searchText.toLowerCase()) ||
-                        item['status']
-                            .toString()
-                            .toLowerCase()
-                            .contains(searchText.toLowerCase()) ||
-                        item['username']
-                            .toString()
-                            .toLowerCase()
-                            .contains(searchText.toLowerCase()) ||
-                        item['assigned_to']
-                            .toString()
-                            .toLowerCase()
-                            .contains(searchText.toLowerCase());
+                            .contains(searchText.toLowerCase()));
                     return matchesType &&
                         matchesStatus &&
                         matchesSearch &&
@@ -489,32 +485,42 @@ class _HomepageWebState extends State<HomepageWeb> {
 
                                                 return DataRow(cells: [
                                                   DataCell(Text(item['date'])),
-                                                  DataCell(Text(item['type'])),
+                                                  DataCell(Text(item['namec'])),
 
-                                                  DataCell(
-                                                      Text(item['location'])),
-                                                  DataCell(Text(item['type'])),
+                                                  DataCell(Text(item['telc'])),
                                                   // DataCell(
-                                                  //   SizedBox(
-                                                  //     width:
-                                                  //         200, // กำหนดความกว้างที่ต้องการ
-                                                  //     child: Text(
-                                                  //       item['detail'].length >
-                                                  //               20
-                                                  //           ? item['detail']
-                                                  //                   .substring(
-                                                  //                       0, 20) +
-                                                  //               '...'
-                                                  //           : item[
-                                                  //               'detail'], // ตัดข้อความที่เกิน 20 ตัวอักษร
-                                                  //       overflow: TextOverflow
-                                                  //           .ellipsis,
-                                                  //       maxLines: 1,
-                                                  //     ),
-                                                  //   ),
-                                                  // ),
+                                                  //     Text(item['diagnosec'])),
                                                   DataCell(
-                                                      Text(item['location'])),
+                                                    SizedBox(
+                                                      width:
+                                                          200, // กำหนดความกว้างที่ต้องการ
+                                                      child: Text(
+                                                        item['diagnosec']
+                                                                    .length >
+                                                                20
+                                                            ? item['diagnosec']
+                                                                    .substring(
+                                                                        0, 20) +
+                                                                '...'
+                                                            : item[
+                                                                'diagnosec'], // ตัดข้อความที่เกิน 20 ตัวอักษร
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        maxLines: 1,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  // DataCell(Text(item['completed_time'])),
+                                                  DataCell(
+                                                    Text(
+                                                      _calculateHoursBetween(
+                                                          item['date'],
+                                                          item[
+                                                              'completed_time']),
+                                                      style: TextStyle(
+                                                          fontSize: 16),
+                                                    ),
+                                                  ),
                                                   DataCell(Row(
                                                     children: [
                                                       // const SizedBox(width: 8),
@@ -548,71 +554,6 @@ class _HomepageWebState extends State<HomepageWeb> {
                                                     ),
                                                   ),
 
-                                                  // DataCell(
-                                                  //   // ตรวจสอบ username ก่อนแสดงไอคอน
-                                                  //   username == item['username']
-                                                  //       ? IconButton(
-                                                  //           color: Colors.red,
-                                                  //           icon: const Icon(
-                                                  //               Icons.delete),
-                                                  //           onPressed:
-                                                  //               () async {
-                                                  //             // แสดงกล่องยืนยันการลบ
-                                                  //             bool isConfirmed =
-                                                  //                 await showDialog(
-                                                  //               context:
-                                                  //                   context,
-                                                  //               builder:
-                                                  //                   (BuildContext
-                                                  //                       context) {
-                                                  //                 return AlertDialog(
-                                                  //                   title: Text(
-                                                  //                       'ยืนยันการลบ'),
-                                                  //                   content: Text(
-                                                  //                       'คุณแน่ใจว่าต้องการลบรายการนี้?'),
-                                                  //                   actions: <Widget>[
-                                                  //                     TextButton(
-                                                  //                       onPressed:
-                                                  //                           () {
-                                                  //                         Navigator.of(context)
-                                                  //                             .pop(false); // ผู้ใช้กด "ยกเลิก"
-                                                  //                       },
-                                                  //                       child: Text(
-                                                  //                           'ยกเลิก'),
-                                                  //                     ),
-                                                  //                     TextButton(
-                                                  //                       onPressed:
-                                                  //                           () {
-                                                  //                         Navigator.of(context)
-                                                  //                             .pop(true); // ผู้ใช้กด "ยืนยัน"
-                                                  //                       },
-                                                  //                       child: Text(
-                                                  //                           'ยืนยัน'),
-                                                  //                     ),
-                                                  //                   ],
-                                                  //                 );
-                                                  //               },
-                                                  //             );
-
-                                                  //             // ถ้าผู้ใช้ยืนยันการลบ
-                                                  //             if (isConfirmed) {
-                                                  //               bool isSuccess =
-                                                  //                   await deleteReport(
-                                                  //                       item[
-                                                  //                           'id']);
-                                                  //               if (isSuccess) {
-                                                  //                 // รีเฟรชข้อมูลหลังจากลบ
-                                                  //                 setState(() {
-                                                  //                   filteredData
-                                                  //                       .remove(
-                                                  //                           item);
-                                                  //                 });
-                                                  //               }
-                                                  //             }
-                                                  //           },
-                                                  //         )
-                                                  //       : const SizedBox(), // ไม่แสดงอะไรหาก username ไม่ตรงกัน
-                                                  // ),
                                                   DataCell(
                                                     // ตรวจสอบ role และ username ก่อนแสดงไอคอน
                                                     role == 'ผู้ดูแลระบบ' ||

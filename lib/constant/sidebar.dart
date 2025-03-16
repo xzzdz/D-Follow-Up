@@ -4,7 +4,7 @@ import 'package:hotel_web/constant/color_font.dart';
 import 'package:hotel_web/screens/profile.dart';
 
 import '../screens/add_report.dart';
-import '../screens/add_type.dart';
+import '../screens/cus.dart';
 import '../screens/dashbord.dart';
 import '../screens/manageusers.dart';
 import '../screens/home.dart';
@@ -119,7 +119,7 @@ class Sidebar extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const AddReport(),
+                  builder: (context) => const Cus(),
                 ),
               );
             },

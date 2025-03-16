@@ -4,10 +4,12 @@ import 'package:http/http.dart' as http;
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../constant/api.dart';
 import '../constant/color_font.dart';
 import '../constant/sidebar.dart';
 import 'login.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../constant/api.dart';
 
 class Detail extends StatefulWidget {
   final dynamic item;
@@ -46,7 +48,7 @@ class _DetailState extends State<Detail> {
 
   Future<void> fetchReportDetail() async {
     try {
-      String url = "http://192.168.1.13/hotel_app_php/get_report_detail.php";
+      String url = Api.get_report_detail;
       final response = await http.post(
         Uri.parse(url),
         body: {'id': widget.item['id'].toString()},
@@ -63,7 +65,7 @@ class _DetailState extends State<Detail> {
           report_user_tel = data['report']['report_user_tel'];
           assigned_to_tel = data['report']['assigned_to_tel'];
           imageUrl = data['report']['image'] != null
-              ? "http://192.168.1.13/hotel_app_php/image_view.php?filename=${data['report']['image']}"
+              ? "${Api.baseUrl}image_view.php?filename=${data['report']['image']}"
               : null;
 
           print('Response JSON: $data');
@@ -80,6 +82,48 @@ class _DetailState extends State<Detail> {
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> _updateStatus(String newStatus) async {
+    try {
+      String url = Api.update_status;
+      Map<String, String> body = {
+        'id': widget.item['id'].toString(),
+        'status': newStatus,
+        'assigned_to': currentStatus == "รอดำเนินการ"
+            ? currentUserName ?? ''
+            : assignedTo ?? '',
+      };
+
+      // ถ้าสถานะเป็น "เสร็จสิ้น" ให้เพิ่มค่าของ completed_time เป็นเวลาปัจจุบัน
+      if (newStatus == "เสร็จสิ้น") {
+        body['completed_time'] = DateTime.now().toString();
+      }
+
+      final response = await http.post(Uri.parse(url), body: body);
+
+      var data = json.decode(response.body);
+
+      if (data['status'] == "success") {
+        setState(() {
+          currentStatus = newStatus;
+          if (newStatus == "กำลังดำเนินการ") {
+            assignedTo = currentUserName;
+          }
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('สถานะถูกอัปเดตเรียบร้อย')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('เกิดข้อผิดพลาด: ${data['message']}')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('เกิดข้อผิดพลาด: $e')),
+      );
+    }
   }
 
   Future<void> _loadUserName() async {
@@ -126,17 +170,17 @@ class _DetailState extends State<Detail> {
                         leading:
                             Icon(Icons.report, size: 40, color: Colors.white),
                         title: Text(
-                          'รายละเอียดการแจ้งซ่อม',
+                          'รายละเอียดการติดตาม',
                           style: TextStyle(
-                            fontSize: 22,
+                            fontSize: 26,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
                         ),
-                        subtitle: Text(
-                          'แสดงข้อมูลการแจ้งซ่อม',
-                          style: TextStyle(color: Colors.white70),
-                        ),
+                        // subtitle: Text(
+                        //   'แสดงข้อมูลการแจ้งซ่อม',
+                        //   style: TextStyle(color: Colors.white70),
+                        // ),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -157,30 +201,62 @@ class _DetailState extends State<Detail> {
                         ),
                         child: ListView(
                           children: [
-                            _buildDetailItem('รหัสแจ้งซ่อม', widget.item['id']),
                             _buildDetailItem(
-                                'ผู้แจ้งซ่อม', username ?? '-'), // ใช้ username
+                                'วันที่ เวลา', widget.item['date']),
                             _buildDetailItem(
-                                'เบอร์โทรผู้แจ้งซ่อม', report_user_tel ?? '-'),
+                                'ชื่อลูกค้า', widget.item['namec']),
+                            _buildDetailItem(
+                                'เบอร์โทรติดต่อ', widget.item['telc']),
+                            _buildDetailItem(
+                                'ที่อยู่', widget.item['addressc']),
+                            _buildDetailItem('อาชีพ', widget.item['rolec']),
+                            _buildDetailItem('อายุ', widget.item['agec']),
+                            _buildDetailItem(
+                                'ซื้อเอง/ฝากซื้อ', widget.item['buyc']),
+                            _buildDetailItem(
+                                'อาการนำ', widget.item['symptomc']),
+                            _buildDetailItem(
+                                'Where/Why', widget.item['wherec']),
+                            _buildDetailItem('When', widget.item['whenc']),
+                            _buildDetailItem(
+                                'ประวัติการใช้ยา', widget.item['hispillc']),
+                            _buildDetailItem(
+                                'ประวัติแพ้ยา', widget.item['hisdefpillc']),
+                            _buildDetailItem('Diagnose การวินิจฉัย',
+                                widget.item['diagnosec']),
+                            _buildDetailItem(
+                                'รายละเอียดอื่นๆ', widget.item['detail']),
+                            _buildDetailItem('การรักษา', widget.item['healc']),
 
-                            _buildDetailItem('ประเภท', widget.item['type']),
-                            _buildDetailItem(
-                                'สถานที่', location ?? '-'), // แสดงสถานที่
-                            _buildDetailItem(
-                                'รายละเอียด', widget.item['detail']),
                             _buildDetailItem('สถานะ', currentStatus ?? '-'),
-                            _buildDetailItem('วันที่แจ้ง', widget.item['date']),
 
-                            if (assignedTo != null && assignedTo!.isNotEmpty)
-                              _buildDetailItem('ช่างซ่อม', assignedTo ?? '-'),
-
-                            if (assignedTo != null && assignedTo!.isNotEmpty)
-                              _buildDetailItem(
-                                  'เบอร์โทรช่างซ่อม', assigned_to_tel ?? '-'),
                             const SizedBox(height: 16),
 
                             if (imageUrl != null && imageUrl!.isNotEmpty)
                               _buildImage(), // แสดงภาพที่โหลดจาก URL
+
+                            const SizedBox(height: 20),
+
+                            Align(
+                              alignment: Alignment.center,
+                              child: currentStatus == "รอดำเนินการ"
+                                  ? Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        _buildActionButton(
+                                            "กำลังดำเนินการ", "กำลังดำเนินการ"),
+                                        const SizedBox(
+                                            width: 8), // ระยะห่างระหว่างปุ่ม
+                                        _buildActionButtonsuccess(
+                                            "เสร็จสิ้น", "เสร็จสิ้น"),
+                                      ],
+                                    )
+                                  : currentStatus == "กำลังดำเนินการ"
+                                      ? _buildActionButtonsuccess(
+                                          "เสร็จสิ้น", "เสร็จสิ้น")
+                                      : const SizedBox(), // ไม่แสดงอะไรเมื่อสถานะเป็น "เสร็จสิ้น"
+                            ),
                           ],
                         ),
                       ),
@@ -241,57 +317,46 @@ class _DetailState extends State<Detail> {
     );
   }
 
-  Widget _buildActionButton(String label, String newStatus) {
-    return Center(
-      child: ElevatedButton(
-        onPressed: () => _updateStatus(newStatus),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: bottoncolor,
-          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+  Widget _buildActionButtonsuccess(String label, String newStatus) {
+    return ElevatedButton(
+      onPressed: () => _updateStatus(newStatus),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.green,
+        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
-        child: Text(
-          label,
-          style: const TextStyle(
-            fontSize: 18,
-            color: Colors.white,
-          ),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontSize: 18,
+          color: Colors.black,
+          fontFamily: Font_.Fonts_T,
         ),
       ),
     );
   }
 
-  Future<void> _updateStatus(String newStatus) async {
-    try {
-      String url = "http://192.168.1.13/hotel_app_php/update_status.php";
-      final response = await http.post(
-        Uri.parse(url),
-        body: {
-          'id': widget.item['id'].toString(),
-          'status': newStatus,
-          'assigned_to':
-              currentStatus == "รอดำเนินการ" ? currentUserName : assignedTo,
-        },
-      );
-
-      var data = json.decode(response.body);
-
-      if (data['status'] == "success") {
-        setState(() {
-          currentStatus = newStatus;
-          if (newStatus == "กำลังดำเนินการ") {
-            assignedTo = currentUserName;
-          }
-        });
-        _showSnackBar('สถานะถูกอัปเดตเรียบร้อย');
-      } else {
-        _showSnackBar('เกิดข้อผิดพลาด: ${data['message']}');
-      }
-    } catch (e) {
-      _showSnackBar('เกิดข้อผิดพลาด: $e');
-    }
+  Widget _buildActionButton(String label, String newStatus) {
+    return ElevatedButton(
+      onPressed: () => _updateStatus(newStatus),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.yellow,
+        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontSize: 18,
+          color: Colors.black,
+          fontFamily: Font_.Fonts_T,
+        ),
+      ),
+    );
   }
 
   Future<void> logout() async {
