@@ -140,7 +140,7 @@ class Sidebar extends StatelessWidget {
           // ),
           const Divider(),
           // เงื่อนไขสำหรับการแสดงเมนูจัดการผู้ใช้งาน
-          if (role == "ผู้ดูแลระบบ") ...[
+          if (role == "ผู้ดูแลระบบ" || role == "พนักงาน") ...[
             ListTile(
               leading: const Icon(Icons.dashboard),
               title: const Text("รายงานสรุป",

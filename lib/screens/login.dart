@@ -176,9 +176,9 @@ class _LoginState extends State<Login> {
                         // แสดง Column สำหรับหน้าจอเล็ก
                         Image.asset(
                           'assets/img/DFU.png',
-                          width: 200, // ลดขนาดโลโก้ในหน้าจอเล็ก
+                          width: 300, // ลดขนาดโลโก้ในหน้าจอเล็ก
                         ),
-                        const SizedBox(height: 10),
+
                         // Text(
                         //   'แอปพลิเคชันระบบแจ้งซ่อม',
                         //   style: TextStyle(

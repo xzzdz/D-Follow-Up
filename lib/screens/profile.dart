@@ -125,358 +125,404 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Sidebar
-              Expanded(
-                flex: 2,
-                child: Card(
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            bool isMobile = constraints.maxWidth < 1020;
+            return isMobile
+                ? AppBar(
+                    leading: Builder(
+                      builder: (context) {
+                        return IconButton(
+                          icon: const Icon(Icons.menu),
+                          onPressed: () {
+                            Scaffold.of(context).openDrawer();
+                          },
+                        );
+                      },
+                    ),
+                  )
+                : const SizedBox.shrink();
+          },
+        ),
+      ),
+      drawer: LayoutBuilder(
+        builder: (context, constraints) {
+          bool isMobile = constraints.maxWidth < 1020;
+          return isMobile
+              ? Drawer(
                   child: Sidebar(
                     username: username,
                     role: role,
                     bottonColor: bottoncolor,
                     onLogout: logout,
                   ),
-                ),
-              ),
+                )
+              : Container();
+        },
+      ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          bool isMobile =
+              constraints.maxWidth < 1020; // เช็คว่าหน้าจอเล็กหรือใหญ่
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Sidebar
+                if (!isMobile) // แสดง Sidebar เฉพาะตอนที่หน้าจอใหญ่
+                  Expanded(
+                    flex: 2,
+                    child: Card(
+                      child: Sidebar(
+                        username: username,
+                        role: role,
+                        bottonColor: bottoncolor,
+                        onLogout: logout,
+                      ),
+                    ),
+                  ),
 
-              Expanded(
-                flex: 8,
-                child: Card(
-                  elevation: 4,
-                  margin: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start, // ชิดซ้าย
-                      children: [
-                        const SizedBox(height: 8.0),
-                        const Padding(
-                          padding: EdgeInsets.only(left: 10),
-                          child: Text(
-                            'โปรไฟล์',
-                            style: TextStyle(
-                              fontSize: 26,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: Font_.Fonts_T,
-                              color: Colors.black87,
+                Expanded(
+                  flex: 8,
+                  child: Card(
+                    elevation: 4,
+                    margin: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start, // ชิดซ้าย
+                        children: [
+                          const SizedBox(height: 8.0),
+                          const Padding(
+                            padding: EdgeInsets.only(left: 10),
+                            child: Text(
+                              'โปรไฟล์',
+                              style: TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: Font_.Fonts_T,
+                                color: Colors.black87,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 8.0),
-                        const Divider(thickness: 1.5),
-                        const SizedBox(height: 16.0),
-                        Center(
-                          child: Container(
-                            width: 150, // ขนาดของรูปโปรไฟล์
-                            height: 150,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle, // รูปแบบวงกลม
-                              image: const DecorationImage(
-                                image: AssetImage('assets/img/runnerx.png'),
-                                fit: BoxFit.cover, // ปรับรูปให้เต็มพื้นที่
-                              ),
-                              border: Border.all(
-                                color: bottoncolor, // ขอบสีขาว
-                                width: 3, // ความหนาของขอบ
+                          const SizedBox(height: 8.0),
+                          const Divider(thickness: 1.5),
+                          const SizedBox(height: 16.0),
+                          Center(
+                            child: Container(
+                              width: 150, // ขนาดของรูปโปรไฟล์
+                              height: 150,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle, // รูปแบบวงกลม
+                                image: const DecorationImage(
+                                  image: AssetImage('assets/img/runnerx.png'),
+                                  fit: BoxFit.cover, // ปรับรูปให้เต็มพื้นที่
+                                ),
+                                border: Border.all(
+                                  color: bottoncolor, // ขอบสีขาว
+                                  width: 3, // ความหนาของขอบ
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 30),
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment:
-                                CrossAxisAlignment.start, // ชิดซ้าย
-                            children: [
-                              const Text(
-                                'ชื่อ - นามสกุล',
-                                style: TextStyle(
-                                  fontFamily: Font_.Fonts_T,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
+                          const SizedBox(height: 30),
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment:
+                                  CrossAxisAlignment.start, // ชิดซ้าย
+                              children: [
+                                const Text(
+                                  'ชื่อ - นามสกุล',
+                                  style: TextStyle(
+                                    fontFamily: Font_.Fonts_T,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                username ?? '-',
-                                style: const TextStyle(
-                                  fontFamily: Font_.Fonts_T,
-                                  fontSize: 16,
-                                  color: Colors.black87,
+                                const SizedBox(height: 8),
+                                Text(
+                                  username ?? '-',
+                                  style: const TextStyle(
+                                    fontFamily: Font_.Fonts_T,
+                                    fontSize: 16,
+                                    color: Colors.black87,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 16),
-                              const Text(
-                                'ตำแหน่ง:',
-                                style: TextStyle(
-                                  fontFamily: Font_.Fonts_T,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
+                                const SizedBox(height: 16),
+                                const Text(
+                                  'ตำแหน่ง:',
+                                  style: TextStyle(
+                                    fontFamily: Font_.Fonts_T,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                role ?? '-',
-                                style: const TextStyle(
-                                  fontFamily: Font_.Fonts_T,
-                                  fontSize: 16,
-                                  color: Colors.black87,
+                                const SizedBox(height: 8),
+                                Text(
+                                  role ?? '-',
+                                  style: const TextStyle(
+                                    fontFamily: Font_.Fonts_T,
+                                    fontSize: 16,
+                                    color: Colors.black87,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 16),
-                              const Text(
-                                'ชื่อผู้ใช้งาน:',
-                                style: TextStyle(
-                                  fontFamily: Font_.Fonts_T,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
+                                const SizedBox(height: 16),
+                                const Text(
+                                  'ชื่อผู้ใช้งาน:',
+                                  style: TextStyle(
+                                    fontFamily: Font_.Fonts_T,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                email ?? '-',
-                                style: const TextStyle(
-                                  fontFamily: Font_.Fonts_T,
-                                  fontSize: 16,
-                                  color: Colors.black87,
+                                const SizedBox(height: 8),
+                                Text(
+                                  email ?? '-',
+                                  style: const TextStyle(
+                                    fontFamily: Font_.Fonts_T,
+                                    fontSize: 16,
+                                    color: Colors.black87,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 16),
-                              const Text(
-                                'เบอร์โทร:',
-                                style: TextStyle(
-                                  fontFamily: Font_.Fonts_T,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
+                                const SizedBox(height: 16),
+                                const Text(
+                                  'เบอร์โทร:',
+                                  style: TextStyle(
+                                    fontFamily: Font_.Fonts_T,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                tel ?? '-',
-                                style: const TextStyle(
-                                  fontFamily: Font_.Fonts_T,
-                                  fontSize: 16,
-                                  color: Colors.black87,
+                                const SizedBox(height: 8),
+                                Text(
+                                  tel ?? '-',
+                                  style: const TextStyle(
+                                    fontFamily: Font_.Fonts_T,
+                                    fontSize: 16,
+                                    color: Colors.black87,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                        Container(
-                          alignment: Alignment.bottomRight,
-                          child: FloatingActionButton(
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  bool dialogObscureText =
-                                      _obscureText; // ใช้ตัวแปรแยกใน dialog
-                                  bool dialogConfirmObscureText =
-                                      _obscureText; // สำหรับ confirm password
-                                  TextEditingController
-                                      confirmPasswordController =
-                                      TextEditingController(); // เพิ่ม controller สำหรับ confirm password
+                          Container(
+                            alignment: Alignment.bottomRight,
+                            child: FloatingActionButton(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    bool dialogObscureText =
+                                        _obscureText; // ใช้ตัวแปรแยกใน dialog
+                                    bool dialogConfirmObscureText =
+                                        _obscureText; // สำหรับ confirm password
+                                    TextEditingController
+                                        confirmPasswordController =
+                                        TextEditingController(); // เพิ่ม controller สำหรับ confirm password
 
-                                  return StatefulBuilder(
-                                    builder: (context, setDialogState) {
-                                      return AlertDialog(
-                                        title: const Text('แก้ไขผู้ใช้งาน'),
-                                        content: Form(
-                                          key: formKey,
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              // // อีเมลผู้ใช้งาน
-                                              // TextFormField(
-                                              //   controller: emailController,
-                                              //   decoration:
-                                              //       const InputDecoration(
-                                              //     labelText: 'ชื่อผู้ใช้งาน',
-                                              //     border:
-                                              //         UnderlineInputBorder(),
-                                              //   ),
-                                              //   validator: (value) {
-                                              //     if (value == null ||
-                                              //         value.trim().isEmpty) {
-                                              //       return 'กรุณาใส่ชื่อผู้ใช้งาน';
-                                              //     }
-                                              //     return null;
-                                              //   },
-                                              // ),
+                                    return StatefulBuilder(
+                                      builder: (context, setDialogState) {
+                                        return AlertDialog(
+                                          title: const Text('แก้ไขผู้ใช้งาน'),
+                                          content: Form(
+                                            key: formKey,
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                // // อีเมลผู้ใช้งาน
+                                                // TextFormField(
+                                                //   controller: emailController,
+                                                //   decoration:
+                                                //       const InputDecoration(
+                                                //     labelText: 'ชื่อผู้ใช้งาน',
+                                                //     border:
+                                                //         UnderlineInputBorder(),
+                                                //   ),
+                                                //   validator: (value) {
+                                                //     if (value == null ||
+                                                //         value.trim().isEmpty) {
+                                                //       return 'กรุณาใส่ชื่อผู้ใช้งาน';
+                                                //     }
+                                                //     return null;
+                                                //   },
+                                                // ),
 
-                                              // const SizedBox(height: 8.0),
+                                                // const SizedBox(height: 8.0),
 
-                                              // รหัสผ่านใหม่
-                                              TextFormField(
-                                                controller: passwordController,
-                                                obscureText: dialogObscureText,
-                                                decoration: InputDecoration(
-                                                  labelText: 'รหัสผ่านใหม่',
-                                                  hintText: 'ใส่รหัสผ่านใหม่',
-                                                  suffixIcon: IconButton(
-                                                    icon: Icon(
-                                                      dialogObscureText
-                                                          ? Icons.visibility_off
-                                                          : Icons.visibility,
+                                                // รหัสผ่านใหม่
+                                                TextFormField(
+                                                  controller:
+                                                      passwordController,
+                                                  obscureText:
+                                                      dialogObscureText,
+                                                  decoration: InputDecoration(
+                                                    labelText: 'รหัสผ่านใหม่',
+                                                    hintText: 'ใส่รหัสผ่านใหม่',
+                                                    suffixIcon: IconButton(
+                                                      icon: Icon(
+                                                        dialogObscureText
+                                                            ? Icons
+                                                                .visibility_off
+                                                            : Icons.visibility,
+                                                      ),
+                                                      onPressed: () {
+                                                        setDialogState(() {
+                                                          dialogObscureText =
+                                                              !dialogObscureText;
+                                                        });
+                                                      },
                                                     ),
-                                                    onPressed: () {
-                                                      setDialogState(() {
-                                                        dialogObscureText =
-                                                            !dialogObscureText;
-                                                      });
-                                                    },
                                                   ),
+                                                  validator: (value) {
+                                                    if (value == null ||
+                                                        value.trim().isEmpty) {
+                                                      return null; // ไม่จำเป็นต้องกรอกเบอร์โทรศัพท์
+                                                    }
+                                                    if (value.length < 6) {
+                                                      return 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
+                                                    }
+                                                    return null;
+                                                  },
                                                 ),
-                                                validator: (value) {
-                                                  if (value == null ||
-                                                      value.trim().isEmpty) {
-                                                    return null; // ไม่จำเป็นต้องกรอกเบอร์โทรศัพท์
-                                                  }
-                                                  if (value.length < 6) {
-                                                    return 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
-                                                  }
-                                                  return null;
-                                                },
-                                              ),
 
-                                              const SizedBox(height: 8.0),
+                                                const SizedBox(height: 8.0),
 
-// ยืนยันรหัสผ่าน
-                                              TextFormField(
-                                                controller:
-                                                    confirmPasswordController,
-                                                obscureText:
-                                                    dialogConfirmObscureText,
-                                                decoration: InputDecoration(
-                                                  labelText:
-                                                      'ยืนยันรหัสผ่านใหม่',
-                                                  hintText:
-                                                      'ใส่รหัสผ่านใหม่อีกครั้ง',
-                                                  suffixIcon: IconButton(
-                                                    icon: Icon(
-                                                      dialogConfirmObscureText
-                                                          ? Icons.visibility_off
-                                                          : Icons.visibility,
+                                                TextFormField(
+                                                  controller:
+                                                      confirmPasswordController,
+                                                  obscureText:
+                                                      dialogConfirmObscureText,
+                                                  decoration: InputDecoration(
+                                                    labelText:
+                                                        'ยืนยันรหัสผ่านใหม่',
+                                                    hintText:
+                                                        'ใส่รหัสผ่านใหม่อีกครั้ง',
+                                                    suffixIcon: IconButton(
+                                                      icon: Icon(
+                                                        dialogConfirmObscureText
+                                                            ? Icons
+                                                                .visibility_off
+                                                            : Icons.visibility,
+                                                      ),
+                                                      onPressed: () {
+                                                        setDialogState(() {
+                                                          dialogConfirmObscureText =
+                                                              !dialogConfirmObscureText;
+                                                        });
+                                                      },
                                                     ),
-                                                    onPressed: () {
-                                                      setDialogState(() {
-                                                        dialogConfirmObscureText =
-                                                            !dialogConfirmObscureText;
-                                                      });
-                                                    },
                                                   ),
+                                                  validator: (value) {
+                                                    if (value == null ||
+                                                        value.trim().isEmpty) {
+                                                      return null; // ไม่จำเป็นต้องกรอกเบอร์โทรศัพท์
+                                                    }
+                                                    if (value !=
+                                                        passwordController
+                                                            .text) {
+                                                      return 'รหัสผ่านไม่ตรงกัน';
+                                                    }
+                                                    return null;
+                                                  },
                                                 ),
-                                                validator: (value) {
-                                                  if (value == null ||
-                                                      value.trim().isEmpty) {
-                                                    return null; // ไม่จำเป็นต้องกรอกเบอร์โทรศัพท์
-                                                  }
-                                                  if (value !=
-                                                      passwordController.text) {
-                                                    return 'รหัสผ่านไม่ตรงกัน';
-                                                  }
-                                                  return null;
-                                                },
-                                              ),
-                                              TextFormField(
-                                                controller: telController,
-                                                decoration:
-                                                    const InputDecoration(
-                                                  labelText: 'เบอร์โทรศัพท์',
-                                                  hintText: 'ใส่เบอร์โทรศัพท์',
-                                                  border:
-                                                      UnderlineInputBorder(),
+                                                TextFormField(
+                                                  controller: telController,
+                                                  decoration:
+                                                      const InputDecoration(
+                                                    labelText: 'เบอร์โทรศัพท์',
+                                                    hintText:
+                                                        'ใส่เบอร์โทรศัพท์',
+                                                    border:
+                                                        UnderlineInputBorder(),
+                                                  ),
+                                                  keyboardType: TextInputType
+                                                      .phone, // ตั้งค่าให้คีย์บอร์ดเป็นแบบเบอร์โทร
+                                                  validator: (value) {
+                                                    if (value == null ||
+                                                        value.trim().isEmpty) {
+                                                      return null; // ไม่จำเป็นต้องกรอกเบอร์โทรศัพท์
+                                                    }
+                                                    // ตรวจสอบว่าเป็นเบอร์โทรศัพท์จริง (10 หลักและเริ่มต้นด้วย 0)
+                                                    final RegExp telRegex =
+                                                        RegExp(r'^0[0-9]{9}$');
+                                                    if (!telRegex.hasMatch(
+                                                        value.trim())) {
+                                                      return 'กรุณาใส่เบอร์โทรศัพท์ที่ถูกต้อง (10 หลักและเริ่มต้นด้วย 0)';
+                                                    }
+                                                    return null;
+                                                  },
                                                 ),
-                                                keyboardType: TextInputType
-                                                    .phone, // ตั้งค่าให้คีย์บอร์ดเป็นแบบเบอร์โทร
-                                                validator: (value) {
-                                                  if (value == null ||
-                                                      value.trim().isEmpty) {
-                                                    return null; // ไม่จำเป็นต้องกรอกเบอร์โทรศัพท์
-                                                  }
-                                                  // ตรวจสอบว่าเป็นเบอร์โทรศัพท์จริง (10 หลักและเริ่มต้นด้วย 0)
-                                                  final RegExp telRegex =
-                                                      RegExp(r'^0[0-9]{9}$');
-                                                  if (!telRegex
-                                                      .hasMatch(value.trim())) {
-                                                    return 'กรุณาใส่เบอร์โทรศัพท์ที่ถูกต้อง (10 หลักและเริ่มต้นด้วย 0)';
-                                                  }
-                                                  return null;
-                                                },
-                                              ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                        actions: [
-                                          TextButton(
-                                            child: const Text('ยกเลิก'),
-                                            onPressed: () =>
-                                                Navigator.of(context).pop(),
-                                          ),
-                                          TextButton(
-                                            child: const Text('บันทึก'),
-                                            onPressed: () async {
-                                              // ตรวจสอบว่าฟอร์มถูกต้องหรือไม่
-                                              if (formKey.currentState!
-                                                  .validate()) {
-                                                // ส่งข้อมูลไปแก้ไข
-                                                if (userId != null) {
-                                                  await editUser(userId!);
-                                                } else {
-                                                  print("User ID is null");
+                                          actions: [
+                                            TextButton(
+                                              child: const Text('ยกเลิก'),
+                                              onPressed: () =>
+                                                  Navigator.of(context).pop(),
+                                            ),
+                                            TextButton(
+                                              child: const Text('บันทึก'),
+                                              onPressed: () async {
+                                                // ตรวจสอบว่าฟอร์มถูกต้องหรือไม่
+                                                if (formKey.currentState!
+                                                    .validate()) {
+                                                  // ส่งข้อมูลไปแก้ไข
+                                                  if (userId != null) {
+                                                    await editUser(userId!);
+                                                  } else {
+                                                    print("User ID is null");
+                                                  }
+                                                  Navigator.of(context)
+                                                      .pop(); // ปิด dialog ก่อน
+                                                  SharedPreferences prefs =
+                                                      await SharedPreferences
+                                                          .getInstance();
+                                                  await prefs
+                                                      .clear(); // ลบข้อมูลทั้งหมด
+                                                  Navigator.pushReplacement(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          const Login(),
+                                                    ),
+                                                  );
                                                 }
-                                                Navigator.of(context)
-                                                    .pop(); // ปิด dialog ก่อน
-                                                SharedPreferences prefs =
-                                                    await SharedPreferences
-                                                        .getInstance();
-                                                await prefs
-                                                    .clear(); // ลบข้อมูลทั้งหมด
-                                                Navigator.pushReplacement(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        const Login(),
-                                                  ),
-                                                );
-                                              }
-                                            },
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  );
-                                },
-                              );
-                            },
-                            backgroundColor: bottoncolor, // สีพื้นหลัง
-                            child: const Icon(
-                              Icons.settings, // ไอคอน
-                              color: Colors.white,
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  },
+                                );
+                              },
+                              backgroundColor: bottoncolor, // สีพื้นหลัง
+                              child: const Icon(
+                                Icons.settings, // ไอคอน
+                                color: Colors.white,
+                              ),
+                              tooltip:
+                                  'แก้ไขผู้ใช้', // ข้อความแสดงเมื่อวางเมาส์ (Desktop)
                             ),
-                            tooltip:
-                                'แก้ไขผู้ใช้', // ข้อความแสดงเมื่อวางเมาส์ (Desktop)
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

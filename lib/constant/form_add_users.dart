@@ -47,7 +47,7 @@ class _AddUserFormState extends State<AddUserForm> {
               labelText: 'ตำแหน่ง',
               border: OutlineInputBorder(),
             ),
-            items: ['ผู้ดูแลระบบ', 'พนักงาน', 'ช่างซ่อม'].map((role) {
+            items: ['ผู้ดูแลระบบ', 'พนักงาน', 'แพทย์', 'ญาติ'].map((role) {
               return DropdownMenuItem<String>(
                 value: role,
                 child: Text(role),

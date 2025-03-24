@@ -26,7 +26,8 @@ class _AddUsersState extends State<ManageUsers> {
     'ทั้งหมด',
     'ผู้ดูแลระบบ',
     'พนักงาน',
-    'ช่างซ่อม',
+    'แพทย์',
+    'ญาติ',
   ];
 
   List<dynamic> users = [];
@@ -64,7 +65,7 @@ class _AddUsersState extends State<ManageUsers> {
 
   // Function to add users
   Future<void> AddUsers() async {
-    String url = Api.add_user;
+    String url = Api.add_users;
 
     final response = await http.post(Uri.parse(url), body: {
       'name': nameController.text,
@@ -73,6 +74,8 @@ class _AddUsersState extends State<ManageUsers> {
       'role': roleController.text,
       'tel': telController.text
     });
+
+    print(response.body);
 
     var data = json.decode(response.body);
     if (data['status'] == "success") {
@@ -204,508 +207,844 @@ class _AddUsersState extends State<ManageUsers> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Sidebar
-            Expanded(
-              flex: 2,
-              child: Card(
-                child: Sidebar(
-                  username: username,
-                  role: role,
-                  bottonColor: bottoncolor,
-                  onLogout: logout,
-                ),
-              ),
-            ),
-
-            // Form Section
-            Expanded(
-              flex: 8,
-              child: Card(
-                elevation: 4,
-                margin: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'จัดการผู้ใช้งาน',
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            bool isMobile = constraints.maxWidth < 1020;
+            return isMobile
+                ? AppBar(
+                    leading: Builder(
+                      builder: (context) {
+                        return IconButton(
+                          icon: const Icon(Icons.menu),
+                          onPressed: () {
+                            Scaffold.of(context).openDrawer();
+                          },
+                        );
+                      },
+                    ),
+                  )
+                : const SizedBox.shrink();
+          },
+        ),
+      ),
+      drawer: LayoutBuilder(
+        builder: (context, constraints) {
+          bool isMobile = constraints.maxWidth < 1020;
+          return isMobile
+              ? Drawer(
+                  child: Sidebar(
+                    username: username,
+                    role: role,
+                    bottonColor: bottoncolor,
+                    onLogout: logout,
+                  ),
+                )
+              : Container();
+        },
+      ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          bool isMobile =
+              constraints.maxWidth < 1020; // เช็คว่าหน้าจอเล็กหรือใหญ่
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Sidebar
+                if (!isMobile) // แสดง Sidebar เฉพาะตอนที่หน้าจอใหญ่
+                  Expanded(
+                    flex: 2,
+                    child: Card(
+                      child: Sidebar(
+                        username: username,
+                        role: role,
+                        bottonColor: bottoncolor,
+                        onLogout: logout,
                       ),
-                      const SizedBox(height: 8.0),
-                      const Divider(thickness: 1.5),
-                      const SizedBox(height: 16.0),
+                    ),
+                  ),
 
-                      // ค้นหาตำแหน่งงาน
-                      Row(
+                // Form Section
+                Expanded(
+                  flex: 8,
+                  child: Card(
+                    elevation: 4,
+                    margin: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: DropdownButtonFormField<String>(
-                              value: selectedRole,
-                              decoration: const InputDecoration(
-                                labelText: 'ค้นหาตำแหน่งงาน',
+                          const Text(
+                            'จัดการผู้ใช้งาน',
+                            style: TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 8.0),
+                          const Divider(thickness: 1.5),
+                          const SizedBox(height: 16.0),
+
+                          // ค้นหาตำแหน่งงาน
+                          Row(
+                            children: [
+                              Expanded(
+                                child: DropdownButtonFormField<String>(
+                                  value: selectedRole,
+                                  decoration: const InputDecoration(
+                                    labelText: 'ค้นหาตำแหน่งงาน',
+                                  ),
+                                  items: roles.map((role) {
+                                    return DropdownMenuItem<String>(
+                                      value: role,
+                                      child: Text(role),
+                                    );
+                                  }).toList(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      selectedRole = value;
+                                    });
+                                  },
+                                ),
                               ),
-                              items: roles.map((role) {
-                                return DropdownMenuItem<String>(
-                                  value: role,
-                                  child: Text(role),
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                setState(() {
-                                  selectedRole = value;
-                                });
-                              },
+                            ],
+                          ),
+                          const SizedBox(height: 16.0),
+                          Expanded(
+                            child: isMobile
+                                ? Expanded(
+                                    child: ListView(
+                                      children: [
+                                        SingleChildScrollView(
+                                          scrollDirection: Axis.horizontal,
+                                          child: DataTable(
+                                            columnSpacing:
+                                                100.0, // เพิ่มระยะห่างระหว่างคอลัมน์
+                                            dataRowHeight:
+                                                60.0, // เพิ่มระยะห่างระหว่างเซลล์
+                                            columns: const [
+                                              DataColumn(
+                                                  label: Text('ชื่อ - นามสกุล',
+                                                      style: TextStyle(
+                                                          fontWeight: FontWeight
+                                                              .bold))),
+                                              DataColumn(
+                                                  label: Text('ชื่อผู้ใช้งาน',
+                                                      style: TextStyle(
+                                                          fontWeight: FontWeight
+                                                              .bold))),
+                                              DataColumn(
+                                                  label: Text('ตำแหน่ง',
+                                                      style: TextStyle(
+                                                          fontWeight: FontWeight
+                                                              .bold))),
+                                              DataColumn(
+                                                  label: Text('เบอร์โทรศัพท์',
+                                                      style: TextStyle(
+                                                          fontWeight: FontWeight
+                                                              .bold))),
+                                              DataColumn(
+                                                  label: Text('     จัดการ',
+                                                      style: TextStyle(
+                                                          fontWeight: FontWeight
+                                                              .bold))),
+                                            ],
+                                            rows: users.where((user) {
+                                              // กรองผู้ใช้ตามตำแหน่งงาน
+                                              return selectedRole ==
+                                                      'ทั้งหมด' ||
+                                                  user['role'] == selectedRole;
+                                            }).map((user) {
+                                              return DataRow(
+                                                cells: [
+                                                  DataCell(Text(user['name'] ??
+                                                      'No Name')),
+                                                  DataCell(Text(user['email'] ??
+                                                      'No Email')),
+                                                  DataCell(Text(user['role'] ??
+                                                      'No Role')),
+                                                  DataCell(Text(user['tel'] ??
+                                                      'No Role')),
+                                                  DataCell(
+                                                    Row(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        IconButton(
+                                                          icon: Icon(
+                                                            Icons.edit,
+                                                            color: bottoncolor,
+                                                          ),
+                                                          onPressed: () {
+                                                            nameController
+                                                                    .text =
+                                                                user['name'];
+                                                            emailController
+                                                                    .text =
+                                                                user['email'];
+                                                            roleController
+                                                                    .text =
+                                                                user['role'];
+                                                            passwordController
+                                                                    .text =
+                                                                ""; // ตั้งค่าเริ่มต้นให้เป็นค่าว่าง
+                                                            TextEditingController
+                                                                confirmPasswordController =
+                                                                TextEditingController(); // เพิ่ม controller สำหรับยืนยันรหัสผ่าน
+
+                                                            showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                bool
+                                                                    dialogObscureText =
+                                                                    _obscureText; // ใช้ตัวแปรแยกใน dialog
+                                                                bool
+                                                                    dialogConfirmObscureText =
+                                                                    _obscureText; // ใช้สำหรับ confirm password
+                                                                return StatefulBuilder(
+                                                                  builder: (context,
+                                                                      setDialogState) {
+                                                                    return AlertDialog(
+                                                                      title: const Text(
+                                                                          'แก้ไขผู้ใช้งาน'),
+                                                                      content:
+                                                                          Form(
+                                                                        key:
+                                                                            formKey,
+                                                                        child:
+                                                                            Column(
+                                                                          mainAxisSize:
+                                                                              MainAxisSize.min,
+                                                                          children: [
+                                                                            // ชื่อผู้ใช้งาน
+                                                                            TextFormField(
+                                                                              controller: nameController,
+                                                                              decoration: const InputDecoration(
+                                                                                labelText: 'ชื่อ - นามสกุล',
+                                                                                hintText: 'ใส่ชื่อ - นามสกุล',
+                                                                                border: UnderlineInputBorder(),
+                                                                              ),
+                                                                              validator: (value) {
+                                                                                if (value == null || value.trim().isEmpty) {
+                                                                                  return 'กรุณาใส่ชื่อ - นามสกุล';
+                                                                                }
+                                                                                return null;
+                                                                              },
+                                                                            ),
+
+                                                                            const SizedBox(height: 8.0),
+
+                                                                            // อีเมลผู้ใช้งาน
+                                                                            TextFormField(
+                                                                              controller: emailController,
+                                                                              decoration: const InputDecoration(
+                                                                                labelText: 'ชื่อผู้ใช้งาน',
+                                                                                hintText: 'ใส่ชื่อผู้ใช้งาน',
+                                                                                border: UnderlineInputBorder(),
+                                                                              ),
+                                                                              validator: (value) {
+                                                                                if (value == null || value.trim().isEmpty) {
+                                                                                  return 'กรุณาใส่ชื่อผู้ใช้งาน';
+                                                                                }
+                                                                                return null;
+                                                                              },
+                                                                            ),
+
+                                                                            const SizedBox(height: 8.0),
+
+                                                                            // ตำแหน่งงานผู้ใช้งาน
+                                                                            DropdownButtonFormField<String>(
+                                                                              value: roleController.text.isNotEmpty ? roleController.text : null,
+                                                                              items: [
+                                                                                'ผู้ดูแลระบบ',
+                                                                                'พนักงาน',
+                                                                                'แพทย์',
+                                                                                'ญาติ'
+                                                                              ].map((role) {
+                                                                                return DropdownMenuItem(
+                                                                                  value: role,
+                                                                                  child: Text(role),
+                                                                                );
+                                                                              }).toList(),
+                                                                              onChanged: (value) {
+                                                                                roleController.text = value!;
+                                                                              },
+                                                                              decoration: const InputDecoration(
+                                                                                labelText: 'ตำแหน่งงาน',
+                                                                                border: UnderlineInputBorder(),
+                                                                              ),
+                                                                              validator: (value) {
+                                                                                if (value == null || value.trim().isEmpty) {
+                                                                                  return 'กรุณาเลือก ตำแหน่งงาน';
+                                                                                }
+                                                                                return null;
+                                                                              },
+                                                                            ),
+
+                                                                            const SizedBox(height: 8.0),
+
+                                                                            // รหัสผ่านใหม่
+                                                                            TextFormField(
+                                                                              controller: passwordController,
+                                                                              obscureText: dialogObscureText,
+                                                                              decoration: InputDecoration(
+                                                                                labelText: 'รหัสผ่านใหม่',
+                                                                                hintText: 'ใส่รหัสผ่านใหม่',
+                                                                                suffixIcon: IconButton(
+                                                                                  icon: Icon(
+                                                                                    dialogObscureText ? Icons.visibility_off : Icons.visibility,
+                                                                                  ),
+                                                                                  onPressed: () {
+                                                                                    setDialogState(() {
+                                                                                      dialogObscureText = !dialogObscureText;
+                                                                                    });
+                                                                                  },
+                                                                                ),
+                                                                              ),
+                                                                              validator: (value) {
+                                                                                if (value == null || value.trim().isEmpty) {
+                                                                                  return null; // ไม่จำเป็นต้องกรอกเบอร์โทรศัพท์
+                                                                                }
+                                                                                if (value.length < 6) {
+                                                                                  return 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
+                                                                                }
+                                                                                return null;
+                                                                              },
+                                                                            ),
+
+                                                                            const SizedBox(height: 8.0),
+                                                                            TextFormField(
+                                                                              controller: confirmPasswordController,
+                                                                              obscureText: dialogConfirmObscureText,
+                                                                              decoration: InputDecoration(
+                                                                                labelText: 'ยืนยันรหัสผ่านใหม่',
+                                                                                hintText: 'ใส่รหัสผ่านใหม่อีกครั้ง',
+                                                                                suffixIcon: IconButton(
+                                                                                  icon: Icon(
+                                                                                    dialogConfirmObscureText ? Icons.visibility_off : Icons.visibility,
+                                                                                  ),
+                                                                                  onPressed: () {
+                                                                                    setDialogState(() {
+                                                                                      dialogConfirmObscureText = !dialogConfirmObscureText;
+                                                                                    });
+                                                                                  },
+                                                                                ),
+                                                                              ),
+                                                                              validator: (value) {
+                                                                                if (value == null || value.trim().isEmpty) {
+                                                                                  return null; // ไม่จำเป็นต้องกรอกเบอร์โทรศัพท์
+                                                                                }
+                                                                                if (value != passwordController.text) {
+                                                                                  return 'รหัสผ่านไม่ตรงกัน';
+                                                                                }
+                                                                                return null;
+                                                                              },
+                                                                            ),
+                                                                            TextFormField(
+                                                                              controller: telController,
+                                                                              decoration: const InputDecoration(
+                                                                                labelText: 'เบอร์โทรศัพท์',
+                                                                                hintText: 'ใส่เบอร์โทรศัพท์',
+                                                                                border: UnderlineInputBorder(),
+                                                                              ),
+                                                                              keyboardType: TextInputType.phone, // ตั้งค่าให้คีย์บอร์ดเป็นแบบเบอร์โทร
+                                                                              validator: (value) {
+                                                                                if (value == null || value.trim().isEmpty) {
+                                                                                  return null; // ไม่จำเป็นต้องกรอกเบอร์โทรศัพท์
+                                                                                }
+                                                                                // ตรวจสอบว่าเป็นเบอร์โทรศัพท์จริง (10 หลักและเริ่มต้นด้วย 0)
+                                                                                final RegExp telRegex = RegExp(r'^0[0-9]{9}$');
+                                                                                if (!telRegex.hasMatch(value.trim())) {
+                                                                                  return 'กรุณาใส่เบอร์โทรศัพท์ที่ถูกต้อง (10 หลักและเริ่มต้นด้วย 0)';
+                                                                                }
+                                                                                return null;
+                                                                              },
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                      ),
+                                                                      actions: [
+                                                                        TextButton(
+                                                                          child:
+                                                                              const Text('ยกเลิก'),
+                                                                          onPressed: () =>
+                                                                              Navigator.of(context).pop(),
+                                                                        ),
+                                                                        TextButton(
+                                                                          child:
+                                                                              const Text('บันทึก'),
+                                                                          onPressed:
+                                                                              () {
+                                                                            // ตรวจสอบว่าฟอร์มถูกต้องหรือไม่
+                                                                            if (formKey.currentState!.validate()) {
+                                                                              editUser(user['id']);
+                                                                              Navigator.of(context).pop();
+                                                                            }
+                                                                          },
+                                                                        ),
+                                                                      ],
+                                                                    );
+                                                                  },
+                                                                );
+                                                              },
+                                                            );
+                                                          },
+                                                        ),
+                                                        IconButton(
+                                                          color: Colors.red,
+                                                          icon: const Icon(
+                                                              Icons.delete),
+                                                          onPressed: () async {
+                                                            // แสดงกล่องยืนยันการลบ
+                                                            bool isConfirmed =
+                                                                await showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (BuildContext
+                                                                      context) {
+                                                                return AlertDialog(
+                                                                  title: Text(
+                                                                      'ยืนยันการลบ'),
+                                                                  content: Text(
+                                                                      'คุณแน่ใจว่าต้องการลบผู้ใช้นี้?'),
+                                                                  actions: <Widget>[
+                                                                    TextButton(
+                                                                      onPressed:
+                                                                          () {
+                                                                        Navigator.of(context)
+                                                                            .pop(false); // ผู้ใช้กด "ยกเลิก"
+                                                                      },
+                                                                      child: Text(
+                                                                          'ยกเลิก'),
+                                                                    ),
+                                                                    TextButton(
+                                                                      onPressed:
+                                                                          () {
+                                                                        Navigator.of(context)
+                                                                            .pop(true); // ผู้ใช้กด "ยืนยัน"
+                                                                      },
+                                                                      child: Text(
+                                                                          'ยืนยัน'),
+                                                                    ),
+                                                                  ],
+                                                                );
+                                                              },
+                                                            );
+
+                                                            // ถ้าผู้ใช้ยืนยันการลบ
+                                                            if (isConfirmed ==
+                                                                true) {
+                                                              deleteUser(
+                                                                  user['id']);
+                                                            }
+                                                          },
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            }).toList(),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                : // DataTable ที่กรองตามตำแหน่งงาน
+                                Expanded(
+                                    child: ListView(
+                                      children: [
+                                        DataTable(
+                                          columns: const [
+                                            DataColumn(
+                                                label: Text('ชื่อ - นามสกุล',
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold))),
+                                            DataColumn(
+                                                label: Text('ชื่อผู้ใช้งาน',
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold))),
+                                            DataColumn(
+                                                label: Text('ตำแหน่ง',
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold))),
+                                            DataColumn(
+                                                label: Text('เบอร์โทรศัพท์',
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold))),
+                                            DataColumn(
+                                                label: Text('     จัดการ',
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold))),
+                                          ],
+                                          rows: users.where((user) {
+                                            // กรองผู้ใช้ตามตำแหน่งงาน
+                                            return selectedRole == 'ทั้งหมด' ||
+                                                user['role'] == selectedRole;
+                                          }).map((user) {
+                                            return DataRow(
+                                              cells: [
+                                                DataCell(Text(
+                                                    user['name'] ?? 'No Name')),
+                                                DataCell(Text(user['email'] ??
+                                                    'No Email')),
+                                                DataCell(Text(
+                                                    user['role'] ?? 'No Role')),
+                                                DataCell(Text(
+                                                    user['tel'] ?? 'No Role')),
+                                                DataCell(
+                                                  Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      IconButton(
+                                                        icon: Icon(
+                                                          Icons.edit,
+                                                          color: bottoncolor,
+                                                        ),
+                                                        onPressed: () {
+                                                          nameController.text =
+                                                              user['name'];
+                                                          emailController.text =
+                                                              user['email'];
+                                                          roleController.text =
+                                                              user['role'];
+                                                          passwordController
+                                                                  .text =
+                                                              ""; // ตั้งค่าเริ่มต้นให้เป็นค่าว่าง
+                                                          TextEditingController
+                                                              confirmPasswordController =
+                                                              TextEditingController(); // เพิ่ม controller สำหรับยืนยันรหัสผ่าน
+
+                                                          showDialog(
+                                                            context: context,
+                                                            builder: (context) {
+                                                              bool
+                                                                  dialogObscureText =
+                                                                  _obscureText; // ใช้ตัวแปรแยกใน dialog
+                                                              bool
+                                                                  dialogConfirmObscureText =
+                                                                  _obscureText; // ใช้สำหรับ confirm password
+                                                              return StatefulBuilder(
+                                                                builder: (context,
+                                                                    setDialogState) {
+                                                                  return AlertDialog(
+                                                                    title: const Text(
+                                                                        'แก้ไขผู้ใช้งาน'),
+                                                                    content:
+                                                                        Form(
+                                                                      key:
+                                                                          formKey,
+                                                                      child:
+                                                                          Column(
+                                                                        mainAxisSize:
+                                                                            MainAxisSize.min,
+                                                                        children: [
+                                                                          // ชื่อผู้ใช้งาน
+                                                                          TextFormField(
+                                                                            controller:
+                                                                                nameController,
+                                                                            decoration:
+                                                                                const InputDecoration(
+                                                                              labelText: 'ชื่อ - นามสกุล',
+                                                                              hintText: 'ใส่ชื่อ - นามสกุล',
+                                                                              border: UnderlineInputBorder(),
+                                                                            ),
+                                                                            validator:
+                                                                                (value) {
+                                                                              if (value == null || value.trim().isEmpty) {
+                                                                                return 'กรุณาใส่ชื่อ - นามสกุล';
+                                                                              }
+                                                                              return null;
+                                                                            },
+                                                                          ),
+
+                                                                          const SizedBox(
+                                                                              height: 8.0),
+
+                                                                          // อีเมลผู้ใช้งาน
+                                                                          TextFormField(
+                                                                            controller:
+                                                                                emailController,
+                                                                            decoration:
+                                                                                const InputDecoration(
+                                                                              labelText: 'ชื่อผู้ใช้งาน',
+                                                                              hintText: 'ใส่ชื่อผู้ใช้งาน',
+                                                                              border: UnderlineInputBorder(),
+                                                                            ),
+                                                                            validator:
+                                                                                (value) {
+                                                                              if (value == null || value.trim().isEmpty) {
+                                                                                return 'กรุณาใส่ชื่อผู้ใช้งาน';
+                                                                              }
+                                                                              return null;
+                                                                            },
+                                                                          ),
+
+                                                                          const SizedBox(
+                                                                              height: 8.0),
+
+                                                                          // ตำแหน่งงานผู้ใช้งาน
+                                                                          DropdownButtonFormField<
+                                                                              String>(
+                                                                            value: roleController.text.isNotEmpty
+                                                                                ? roleController.text
+                                                                                : null,
+                                                                            items:
+                                                                                [
+                                                                              'ผู้ดูแลระบบ',
+                                                                              'พนักงาน',
+                                                                              'แพทย์',
+                                                                              'ญาติ'
+                                                                            ].map((role) {
+                                                                              return DropdownMenuItem(
+                                                                                value: role,
+                                                                                child: Text(role),
+                                                                              );
+                                                                            }).toList(),
+                                                                            onChanged:
+                                                                                (value) {
+                                                                              roleController.text = value!;
+                                                                            },
+                                                                            decoration:
+                                                                                const InputDecoration(
+                                                                              labelText: 'ตำแหน่งงาน',
+                                                                              border: UnderlineInputBorder(),
+                                                                            ),
+                                                                            validator:
+                                                                                (value) {
+                                                                              if (value == null || value.trim().isEmpty) {
+                                                                                return 'กรุณาเลือก ตำแหน่งงาน';
+                                                                              }
+                                                                              return null;
+                                                                            },
+                                                                          ),
+
+                                                                          const SizedBox(
+                                                                              height: 8.0),
+
+                                                                          // รหัสผ่านใหม่
+                                                                          TextFormField(
+                                                                            controller:
+                                                                                passwordController,
+                                                                            obscureText:
+                                                                                dialogObscureText,
+                                                                            decoration:
+                                                                                InputDecoration(
+                                                                              labelText: 'รหัสผ่านใหม่',
+                                                                              hintText: 'ใส่รหัสผ่านใหม่',
+                                                                              suffixIcon: IconButton(
+                                                                                icon: Icon(
+                                                                                  dialogObscureText ? Icons.visibility_off : Icons.visibility,
+                                                                                ),
+                                                                                onPressed: () {
+                                                                                  setDialogState(() {
+                                                                                    dialogObscureText = !dialogObscureText;
+                                                                                  });
+                                                                                },
+                                                                              ),
+                                                                            ),
+                                                                            validator:
+                                                                                (value) {
+                                                                              if (value == null || value.trim().isEmpty) {
+                                                                                return null; // ไม่จำเป็นต้องกรอกเบอร์โทรศัพท์
+                                                                              }
+                                                                              if (value.length < 6) {
+                                                                                return 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
+                                                                              }
+                                                                              return null;
+                                                                            },
+                                                                          ),
+
+                                                                          const SizedBox(
+                                                                              height: 8.0),
+                                                                          TextFormField(
+                                                                            controller:
+                                                                                confirmPasswordController,
+                                                                            obscureText:
+                                                                                dialogConfirmObscureText,
+                                                                            decoration:
+                                                                                InputDecoration(
+                                                                              labelText: 'ยืนยันรหัสผ่านใหม่',
+                                                                              hintText: 'ใส่รหัสผ่านใหม่อีกครั้ง',
+                                                                              suffixIcon: IconButton(
+                                                                                icon: Icon(
+                                                                                  dialogConfirmObscureText ? Icons.visibility_off : Icons.visibility,
+                                                                                ),
+                                                                                onPressed: () {
+                                                                                  setDialogState(() {
+                                                                                    dialogConfirmObscureText = !dialogConfirmObscureText;
+                                                                                  });
+                                                                                },
+                                                                              ),
+                                                                            ),
+                                                                            validator:
+                                                                                (value) {
+                                                                              if (value == null || value.trim().isEmpty) {
+                                                                                return null; // ไม่จำเป็นต้องกรอกเบอร์โทรศัพท์
+                                                                              }
+                                                                              if (value != passwordController.text) {
+                                                                                return 'รหัสผ่านไม่ตรงกัน';
+                                                                              }
+                                                                              return null;
+                                                                            },
+                                                                          ),
+                                                                          TextFormField(
+                                                                            controller:
+                                                                                telController,
+                                                                            decoration:
+                                                                                const InputDecoration(
+                                                                              labelText: 'เบอร์โทรศัพท์',
+                                                                              hintText: 'ใส่เบอร์โทรศัพท์',
+                                                                              border: UnderlineInputBorder(),
+                                                                            ),
+                                                                            keyboardType:
+                                                                                TextInputType.phone, // ตั้งค่าให้คีย์บอร์ดเป็นแบบเบอร์โทร
+                                                                            validator:
+                                                                                (value) {
+                                                                              if (value == null || value.trim().isEmpty) {
+                                                                                return null; // ไม่จำเป็นต้องกรอกเบอร์โทรศัพท์
+                                                                              }
+                                                                              // ตรวจสอบว่าเป็นเบอร์โทรศัพท์จริง (10 หลักและเริ่มต้นด้วย 0)
+                                                                              final RegExp telRegex = RegExp(r'^0[0-9]{9}$');
+                                                                              if (!telRegex.hasMatch(value.trim())) {
+                                                                                return 'กรุณาใส่เบอร์โทรศัพท์ที่ถูกต้อง (10 หลักและเริ่มต้นด้วย 0)';
+                                                                              }
+                                                                              return null;
+                                                                            },
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                    actions: [
+                                                                      TextButton(
+                                                                        child: const Text(
+                                                                            'ยกเลิก'),
+                                                                        onPressed:
+                                                                            () =>
+                                                                                Navigator.of(context).pop(),
+                                                                      ),
+                                                                      TextButton(
+                                                                        child: const Text(
+                                                                            'บันทึก'),
+                                                                        onPressed:
+                                                                            () {
+                                                                          // ตรวจสอบว่าฟอร์มถูกต้องหรือไม่
+                                                                          if (formKey
+                                                                              .currentState!
+                                                                              .validate()) {
+                                                                            editUser(user['id']);
+                                                                            Navigator.of(context).pop();
+                                                                          }
+                                                                        },
+                                                                      ),
+                                                                    ],
+                                                                  );
+                                                                },
+                                                              );
+                                                            },
+                                                          );
+                                                        },
+                                                      ),
+                                                      IconButton(
+                                                        color: Colors.red,
+                                                        icon: const Icon(
+                                                            Icons.delete),
+                                                        onPressed: () async {
+                                                          // แสดงกล่องยืนยันการลบ
+                                                          bool isConfirmed =
+                                                              await showDialog(
+                                                            context: context,
+                                                            builder:
+                                                                (BuildContext
+                                                                    context) {
+                                                              return AlertDialog(
+                                                                title: Text(
+                                                                    'ยืนยันการลบ'),
+                                                                content: Text(
+                                                                    'คุณแน่ใจว่าต้องการลบผู้ใช้นี้?'),
+                                                                actions: <Widget>[
+                                                                  TextButton(
+                                                                    onPressed:
+                                                                        () {
+                                                                      Navigator.of(
+                                                                              context)
+                                                                          .pop(
+                                                                              false); // ผู้ใช้กด "ยกเลิก"
+                                                                    },
+                                                                    child: Text(
+                                                                        'ยกเลิก'),
+                                                                  ),
+                                                                  TextButton(
+                                                                    onPressed:
+                                                                        () {
+                                                                      Navigator.of(
+                                                                              context)
+                                                                          .pop(
+                                                                              true); // ผู้ใช้กด "ยืนยัน"
+                                                                    },
+                                                                    child: Text(
+                                                                        'ยืนยัน'),
+                                                                  ),
+                                                                ],
+                                                              );
+                                                            },
+                                                          );
+
+                                                          // ถ้าผู้ใช้ยืนยันการลบ
+                                                          if (isConfirmed ==
+                                                              true) {
+                                                            deleteUser(
+                                                                user['id']);
+                                                          }
+                                                        },
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          }).toList(),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                          ),
+                          // Add User Form
+                          Container(
+                            alignment: Alignment.bottomRight,
+                            child: FloatingActionButton(
+                              onPressed:
+                                  openAddUserForm, // เปิด Dialog เมื่อกดปุ่ม
+                              backgroundColor: bottoncolor, // สีพื้นหลัง
+                              child: const Icon(
+                                Icons.add, // ไอคอนเครื่องหมาย "+"
+                                color: Colors.white,
+                              ),
+                              tooltip:
+                                  'เพิ่มผู้ใช้', // ข้อความแสดงเมื่อวางเมาส์ (Desktop)
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16.0),
-
-                      // DataTable ที่กรองตามตำแหน่งงาน
-                      Expanded(
-                        child: ListView(
-                          children: [
-                            DataTable(
-                              columns: const [
-                                DataColumn(
-                                    label: Text('ชื่อ - นามสกุล',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold))),
-                                DataColumn(
-                                    label: Text('ชื่อผู้ใช้งาน',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold))),
-                                DataColumn(
-                                    label: Text('ตำแหน่ง',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold))),
-                                DataColumn(
-                                    label: Text('เบอร์โทรศัพท์',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold))),
-                                DataColumn(
-                                    label: Text('     จัดการ',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold))),
-                              ],
-                              rows: users.where((user) {
-                                // กรองผู้ใช้ตามตำแหน่งงาน
-                                return selectedRole == 'ทั้งหมด' ||
-                                    user['role'] == selectedRole;
-                              }).map((user) {
-                                return DataRow(
-                                  cells: [
-                                    DataCell(Text(user['name'] ?? 'No Name')),
-                                    DataCell(Text(user['email'] ?? 'No Email')),
-                                    DataCell(Text(user['role'] ?? 'No Role')),
-                                    DataCell(Text(user['tel'] ?? 'No Role')),
-                                    DataCell(
-                                      Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          IconButton(
-                                            icon: Icon(
-                                              Icons.edit,
-                                              color: bottoncolor,
-                                            ),
-                                            onPressed: () {
-                                              nameController.text =
-                                                  user['name'];
-                                              emailController.text =
-                                                  user['email'];
-                                              roleController.text =
-                                                  user['role'];
-                                              passwordController.text =
-                                                  ""; // ตั้งค่าเริ่มต้นให้เป็นค่าว่าง
-                                              TextEditingController
-                                                  confirmPasswordController =
-                                                  TextEditingController(); // เพิ่ม controller สำหรับยืนยันรหัสผ่าน
-
-                                              showDialog(
-                                                context: context,
-                                                builder: (context) {
-                                                  bool dialogObscureText =
-                                                      _obscureText; // ใช้ตัวแปรแยกใน dialog
-                                                  bool
-                                                      dialogConfirmObscureText =
-                                                      _obscureText; // ใช้สำหรับ confirm password
-                                                  return StatefulBuilder(
-                                                    builder: (context,
-                                                        setDialogState) {
-                                                      return AlertDialog(
-                                                        title: const Text(
-                                                            'แก้ไขผู้ใช้งาน'),
-                                                        content: Form(
-                                                          key: formKey,
-                                                          child: Column(
-                                                            mainAxisSize:
-                                                                MainAxisSize
-                                                                    .min,
-                                                            children: [
-                                                              // ชื่อผู้ใช้งาน
-                                                              TextFormField(
-                                                                controller:
-                                                                    nameController,
-                                                                decoration:
-                                                                    const InputDecoration(
-                                                                  labelText:
-                                                                      'ชื่อ - นามสกุล',
-                                                                  hintText:
-                                                                      'ใส่ชื่อ - นามสกุล',
-                                                                  border:
-                                                                      UnderlineInputBorder(),
-                                                                ),
-                                                                validator:
-                                                                    (value) {
-                                                                  if (value ==
-                                                                          null ||
-                                                                      value
-                                                                          .trim()
-                                                                          .isEmpty) {
-                                                                    return 'กรุณาใส่ชื่อ - นามสกุล';
-                                                                  }
-                                                                  return null;
-                                                                },
-                                                              ),
-
-                                                              const SizedBox(
-                                                                  height: 8.0),
-
-                                                              // อีเมลผู้ใช้งาน
-                                                              TextFormField(
-                                                                controller:
-                                                                    emailController,
-                                                                decoration:
-                                                                    const InputDecoration(
-                                                                  labelText:
-                                                                      'ชื่อผู้ใช้งาน',
-                                                                  hintText:
-                                                                      'ใส่ชื่อผู้ใช้งาน',
-                                                                  border:
-                                                                      UnderlineInputBorder(),
-                                                                ),
-                                                                validator:
-                                                                    (value) {
-                                                                  if (value ==
-                                                                          null ||
-                                                                      value
-                                                                          .trim()
-                                                                          .isEmpty) {
-                                                                    return 'กรุณาใส่ชื่อผู้ใช้งาน';
-                                                                  }
-                                                                  return null;
-                                                                },
-                                                              ),
-
-                                                              const SizedBox(
-                                                                  height: 8.0),
-
-                                                              // ตำแหน่งงานผู้ใช้งาน
-                                                              DropdownButtonFormField<
-                                                                  String>(
-                                                                value: roleController
-                                                                        .text
-                                                                        .isNotEmpty
-                                                                    ? roleController
-                                                                        .text
-                                                                    : null,
-                                                                items: [
-                                                                  'ผู้ดูแลระบบ',
-                                                                  'พนักงาน',
-                                                                  'ช่างซ่อม'
-                                                                ].map((role) {
-                                                                  return DropdownMenuItem(
-                                                                    value: role,
-                                                                    child: Text(
-                                                                        role),
-                                                                  );
-                                                                }).toList(),
-                                                                onChanged:
-                                                                    (value) {
-                                                                  roleController
-                                                                          .text =
-                                                                      value!;
-                                                                },
-                                                                decoration:
-                                                                    const InputDecoration(
-                                                                  labelText:
-                                                                      'ตำแหน่งงาน',
-                                                                  border:
-                                                                      UnderlineInputBorder(),
-                                                                ),
-                                                                validator:
-                                                                    (value) {
-                                                                  if (value ==
-                                                                          null ||
-                                                                      value
-                                                                          .trim()
-                                                                          .isEmpty) {
-                                                                    return 'กรุณาเลือก ตำแหน่งงาน';
-                                                                  }
-                                                                  return null;
-                                                                },
-                                                              ),
-
-                                                              const SizedBox(
-                                                                  height: 8.0),
-
-                                                              // รหัสผ่านใหม่
-                                                              TextFormField(
-                                                                controller:
-                                                                    passwordController,
-                                                                obscureText:
-                                                                    dialogObscureText,
-                                                                decoration:
-                                                                    InputDecoration(
-                                                                  labelText:
-                                                                      'รหัสผ่านใหม่',
-                                                                  hintText:
-                                                                      'ใส่รหัสผ่านใหม่',
-                                                                  suffixIcon:
-                                                                      IconButton(
-                                                                    icon: Icon(
-                                                                      dialogObscureText
-                                                                          ? Icons
-                                                                              .visibility_off
-                                                                          : Icons
-                                                                              .visibility,
-                                                                    ),
-                                                                    onPressed:
-                                                                        () {
-                                                                      setDialogState(
-                                                                          () {
-                                                                        dialogObscureText =
-                                                                            !dialogObscureText;
-                                                                      });
-                                                                    },
-                                                                  ),
-                                                                ),
-                                                                validator:
-                                                                    (value) {
-                                                                  if (value ==
-                                                                          null ||
-                                                                      value
-                                                                          .trim()
-                                                                          .isEmpty) {
-                                                                    return null; // ไม่จำเป็นต้องกรอกเบอร์โทรศัพท์
-                                                                  }
-                                                                  if (value
-                                                                          .length <
-                                                                      6) {
-                                                                    return 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
-                                                                  }
-                                                                  return null;
-                                                                },
-                                                              ),
-
-                                                              const SizedBox(
-                                                                  height: 8.0),
-
-// ยืนยันรหัสผ่าน
-                                                              TextFormField(
-                                                                controller:
-                                                                    confirmPasswordController,
-                                                                obscureText:
-                                                                    dialogConfirmObscureText,
-                                                                decoration:
-                                                                    InputDecoration(
-                                                                  labelText:
-                                                                      'ยืนยันรหัสผ่านใหม่',
-                                                                  hintText:
-                                                                      'ใส่รหัสผ่านใหม่อีกครั้ง',
-                                                                  suffixIcon:
-                                                                      IconButton(
-                                                                    icon: Icon(
-                                                                      dialogConfirmObscureText
-                                                                          ? Icons
-                                                                              .visibility_off
-                                                                          : Icons
-                                                                              .visibility,
-                                                                    ),
-                                                                    onPressed:
-                                                                        () {
-                                                                      setDialogState(
-                                                                          () {
-                                                                        dialogConfirmObscureText =
-                                                                            !dialogConfirmObscureText;
-                                                                      });
-                                                                    },
-                                                                  ),
-                                                                ),
-                                                                validator:
-                                                                    (value) {
-                                                                  if (value ==
-                                                                          null ||
-                                                                      value
-                                                                          .trim()
-                                                                          .isEmpty) {
-                                                                    return null; // ไม่จำเป็นต้องกรอกเบอร์โทรศัพท์
-                                                                  }
-                                                                  if (value !=
-                                                                      passwordController
-                                                                          .text) {
-                                                                    return 'รหัสผ่านไม่ตรงกัน';
-                                                                  }
-                                                                  return null;
-                                                                },
-                                                              ),
-
-// เบอร์โทรศัพท์
-                                                              TextFormField(
-                                                                controller:
-                                                                    telController,
-                                                                decoration:
-                                                                    const InputDecoration(
-                                                                  labelText:
-                                                                      'เบอร์โทรศัพท์',
-                                                                  hintText:
-                                                                      'ใส่เบอร์โทรศัพท์',
-                                                                  border:
-                                                                      UnderlineInputBorder(),
-                                                                ),
-                                                                keyboardType:
-                                                                    TextInputType
-                                                                        .phone, // ตั้งค่าให้คีย์บอร์ดเป็นแบบเบอร์โทร
-                                                                validator:
-                                                                    (value) {
-                                                                  if (value ==
-                                                                          null ||
-                                                                      value
-                                                                          .trim()
-                                                                          .isEmpty) {
-                                                                    return null; // ไม่จำเป็นต้องกรอกเบอร์โทรศัพท์
-                                                                  }
-                                                                  // ตรวจสอบว่าเป็นเบอร์โทรศัพท์จริง (10 หลักและเริ่มต้นด้วย 0)
-                                                                  final RegExp
-                                                                      telRegex =
-                                                                      RegExp(
-                                                                          r'^0[0-9]{9}$');
-                                                                  if (!telRegex
-                                                                      .hasMatch(
-                                                                          value
-                                                                              .trim())) {
-                                                                    return 'กรุณาใส่เบอร์โทรศัพท์ที่ถูกต้อง (10 หลักและเริ่มต้นด้วย 0)';
-                                                                  }
-                                                                  return null;
-                                                                },
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        actions: [
-                                                          TextButton(
-                                                            child: const Text(
-                                                                'ยกเลิก'),
-                                                            onPressed: () =>
-                                                                Navigator.of(
-                                                                        context)
-                                                                    .pop(),
-                                                          ),
-                                                          TextButton(
-                                                            child: const Text(
-                                                                'บันทึก'),
-                                                            onPressed: () {
-                                                              // ตรวจสอบว่าฟอร์มถูกต้องหรือไม่
-                                                              if (formKey
-                                                                  .currentState!
-                                                                  .validate()) {
-                                                                editUser(
-                                                                    user['id']);
-                                                                Navigator.of(
-                                                                        context)
-                                                                    .pop();
-                                                              }
-                                                            },
-                                                          ),
-                                                        ],
-                                                      );
-                                                    },
-                                                  );
-                                                },
-                                              );
-                                            },
-                                          ),
-                                          IconButton(
-                                            color: Colors.red,
-                                            icon: const Icon(Icons.delete),
-                                            onPressed: () async {
-                                              // แสดงกล่องยืนยันการลบ
-                                              bool isConfirmed =
-                                                  await showDialog(
-                                                context: context,
-                                                builder:
-                                                    (BuildContext context) {
-                                                  return AlertDialog(
-                                                    title: Text('ยืนยันการลบ'),
-                                                    content: Text(
-                                                        'คุณแน่ใจว่าต้องการลบผู้ใช้นี้?'),
-                                                    actions: <Widget>[
-                                                      TextButton(
-                                                        onPressed: () {
-                                                          Navigator.of(context).pop(
-                                                              false); // ผู้ใช้กด "ยกเลิก"
-                                                        },
-                                                        child: Text('ยกเลิก'),
-                                                      ),
-                                                      TextButton(
-                                                        onPressed: () {
-                                                          Navigator.of(context).pop(
-                                                              true); // ผู้ใช้กด "ยืนยัน"
-                                                        },
-                                                        child: Text('ยืนยัน'),
-                                                      ),
-                                                    ],
-                                                  );
-                                                },
-                                              );
-
-                                              // ถ้าผู้ใช้ยืนยันการลบ
-                                              if (isConfirmed == true) {
-                                                deleteUser(user['id']);
-                                              }
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              }).toList(),
-                            ),
-                          ],
-                        ),
-                      ),
-                      // Add User Form
-                      Container(
-                        alignment: Alignment.bottomRight,
-                        child: FloatingActionButton(
-                          onPressed: openAddUserForm, // เปิด Dialog เมื่อกดปุ่ม
-                          backgroundColor: bottoncolor, // สีพื้นหลัง
-                          child: const Icon(
-                            Icons.add, // ไอคอนเครื่องหมาย "+"
-                            color: Colors.white,
-                          ),
-                          tooltip:
-                              'เพิ่มผู้ใช้', // ข้อความแสดงเมื่อวางเมาส์ (Desktop)
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

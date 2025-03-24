@@ -257,322 +257,380 @@ class _AddReportState extends State<AddReport> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Sidebar
-            Expanded(
-              flex: 2,
-              child: Card(
-                child: Sidebar(
-                  username: username,
-                  role: role,
-                  bottonColor: bottoncolor,
-                  onLogout: logout,
-                ),
-              ),
-            ),
-            // Main Content
-            Expanded(
-              flex: 8,
-              child: Card(
-                elevation: 4,
-                margin: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'บันทึกรายละเอียดการติดตาม',
-                          style: TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        const SizedBox(height: 8.0),
-                        const Divider(thickness: 1.5),
-                        const SizedBox(height: 16.0),
-                        Form(
-                          key: _formKey,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Autocomplete<Map<String, String>>(
-                                optionsBuilder:
-                                    (TextEditingValue textEditingValue) async {
-                                  if (textEditingValue.text.isEmpty) {
-                                    return const Iterable<
-                                        Map<String, String>>.empty();
-                                  }
-                                  return await _fetchCustomers(
-                                      textEditingValue.text);
-                                },
-                                displayStringForOption: (option) =>
-                                    option['namec']!,
-                                onSelected: (Map<String, String> selection) {
-                                  setState(() {
-                                    _namecController.text = selection['namec']!;
-                                    _telcController.text = selection['telc']!;
-                                    _addresscController.text =
-                                        selection['addressc']!;
-                                    _rolecController.text = selection['rolec']!;
-                                    _agecController.text = selection['agec']!;
-                                    _buycController.text = selection['buyc']!;
-                                    _symptomcController.text =
-                                        selection['symptomc']!;
-                                    _wherecController.text =
-                                        selection['wherec']!;
-                                    _whencController.text = selection['whenc']!;
-                                    _hispillcController.text =
-                                        selection['hispillc']!;
-                                    _hisdefpillcController.text =
-                                        selection['hisdefpillc']!;
-                                    _diagnosecController.text =
-                                        selection['diagnosec']!;
-                                    _detailController.text =
-                                        selection['detail']!;
-                                    _healcController.text = selection['healc']!;
-                                  });
-                                },
-                                fieldViewBuilder: (context,
-                                    textEditingController,
-                                    focusNode,
-                                    onFieldSubmitted) {
-                                  return TextFormField(
-                                    controller: textEditingController,
-                                    focusNode: focusNode,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            bool isMobile = constraints.maxWidth < 1020;
+            return isMobile
+                ? AppBar(
+                    leading: Builder(
+                      builder: (context) {
+                        return IconButton(
+                          icon: const Icon(Icons.menu),
+                          onPressed: () {
+                            Scaffold.of(context).openDrawer();
+                          },
+                        );
+                      },
+                    ),
+                  )
+                : const SizedBox.shrink();
+          },
+        ),
+      ),
+      drawer: LayoutBuilder(
+        builder: (context, constraints) {
+          bool isMobile = constraints.maxWidth < 1020;
+          return isMobile
+              ? Drawer(
+                  child: Sidebar(
+                    username: username,
+                    role: role,
+                    bottonColor: bottoncolor,
+                    onLogout: logout,
+                  ),
+                )
+              : Container();
+        },
+      ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          bool isMobile =
+              constraints.maxWidth < 1020; // เช็คว่าหน้าจอเล็กหรือใหญ่
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Sidebar
+                if (!isMobile) // แสดง Sidebar เฉพาะตอนที่หน้าจอใหญ่
+                  Expanded(
+                    flex: 2,
+                    child: Card(
+                      child: Sidebar(
+                        username: username,
+                        role: role,
+                        bottonColor: bottoncolor,
+                        onLogout: logout,
+                      ),
+                    ),
+                  ),
+                // Main Content
+                Expanded(
+                  flex: 8,
+                  child: Card(
+                    elevation: 4,
+                    margin: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'บันทึกรายละเอียดการติดตาม',
+                              style: TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            const SizedBox(height: 8.0),
+                            const Divider(thickness: 1.5),
+                            const SizedBox(height: 16.0),
+                            Form(
+                              key: _formKey,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Autocomplete<Map<String, String>>(
+                                    optionsBuilder: (TextEditingValue
+                                        textEditingValue) async {
+                                      if (textEditingValue.text.isEmpty) {
+                                        return const Iterable<
+                                            Map<String, String>>.empty();
+                                      }
+                                      return await _fetchCustomers(
+                                          textEditingValue.text);
+                                    },
+                                    displayStringForOption: (option) =>
+                                        option['namec']!,
+                                    onSelected:
+                                        (Map<String, String> selection) {
+                                      setState(() {
+                                        _namecController.text =
+                                            selection['namec']!;
+                                        _telcController.text =
+                                            selection['telc']!;
+                                        _addresscController.text =
+                                            selection['addressc']!;
+                                        _rolecController.text =
+                                            selection['rolec']!;
+                                        _agecController.text =
+                                            selection['agec']!;
+                                        _buycController.text =
+                                            selection['buyc']!;
+                                        _symptomcController.text =
+                                            selection['symptomc']!;
+                                        _wherecController.text =
+                                            selection['wherec']!;
+                                        _whencController.text =
+                                            selection['whenc']!;
+                                        _hispillcController.text =
+                                            selection['hispillc']!;
+                                        _hisdefpillcController.text =
+                                            selection['hisdefpillc']!;
+                                        _diagnosecController.text =
+                                            selection['diagnosec']!;
+                                        _detailController.text =
+                                            selection['detail']!;
+                                        _healcController.text =
+                                            selection['healc']!;
+                                      });
+                                    },
+                                    fieldViewBuilder: (context,
+                                        textEditingController,
+                                        focusNode,
+                                        onFieldSubmitted) {
+                                      return TextFormField(
+                                        controller: textEditingController,
+                                        focusNode: focusNode,
+                                        decoration: const InputDecoration(
+                                          labelText: 'ชื่อลูกค้า:',
+                                          border: OutlineInputBorder(),
+                                        ),
+                                        validator: (value) {
+                                          if (value == null ||
+                                              value.trim().isEmpty) {
+                                            return 'กรุณากรอกชื่อลูกค้า';
+                                          }
+                                          return null;
+                                        },
+                                        onChanged: (value) {
+                                          _namecController.text =
+                                              value; // อัปเดตค่า _namecController
+                                        },
+                                      );
+                                    },
+                                  ),
+
+                                  const SizedBox(height: 16),
+
+                                  // ช่องกรอกเบอร์โทรลูกค้า
+                                  TextFormField(
+                                    controller: _telcController,
                                     decoration: const InputDecoration(
-                                      labelText: 'ชื่อลูกค้า:',
+                                      labelText: 'เบอร์โทรลูกค้า:',
                                       border: OutlineInputBorder(),
                                     ),
+                                    keyboardType: TextInputType.phone,
                                     validator: (value) {
                                       if (value == null ||
                                           value.trim().isEmpty) {
-                                        return 'กรุณากรอกชื่อลูกค้า';
+                                        return 'กรุณากรอกเบอร์โทรลูกค้า';
+                                      }
+                                      if (!RegExp(r'^[0-9]{10}$')
+                                          .hasMatch(value)) {
+                                        return 'กรุณากรอกเบอร์โทรให้ถูกต้อง (10 หลัก)';
                                       }
                                       return null;
                                     },
-                                    onChanged: (value) {
-                                      _namecController.text =
-                                          value; // อัปเดตค่า _namecController
-                                    },
-                                  );
-                                },
-                              ),
+                                  ),
 
-                              const SizedBox(height: 16),
+                                  const SizedBox(height: 16),
+                                  TextFormField(
+                                    controller: _addresscController,
+                                    maxLines: 2,
+                                    decoration: const InputDecoration(
+                                      labelText: 'ที่อยู่:',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  TextFormField(
+                                    controller: _rolecController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'อาชีพ:',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  TextFormField(
+                                    controller: _agecController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'อายุ:',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 32),
+                                  TextFormField(
+                                    controller: _buycController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'ซื้อเอง/ฝากซื้อ:',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  TextFormField(
+                                    controller: _symptomcController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'อาการนำ:',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  TextFormField(
+                                    controller: _wherecController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Where/Why:',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  TextFormField(
+                                    controller: _whencController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'When:',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 32),
+                                  TextFormField(
+                                    controller: _hispillcController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'ประวัติการใช้ยา:',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  TextFormField(
+                                    controller: _hisdefpillcController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'ประวัติแพ้ยา:',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 32),
+                                  TextFormField(
+                                    controller: _diagnosecController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Diagnose การวินิจฉัย:',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  TextFormField(
+                                    controller: _detailController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'รายละเอียดอื่นๆ:',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  TextFormField(
+                                    controller: _healcController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'การรักษา:',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Row(
+                                    children: [
+                                      TextButton.icon(
+                                        onPressed: () =>
+                                            _selectDateTime(context),
+                                        icon: const Icon(Icons.calendar_today),
+                                        label:
+                                            const Text("เลือกวันที่และเวลา:"),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  // Display the selected image file name
+                                  if (_selectedImage != null)
+                                    Text(
+                                      "ชื่อไฟล์: $_imageFileName", // Show the file name here",
+                                      style: const TextStyle(
+                                          fontSize: 16, color: Colors.black),
+                                    ),
 
-                              // ช่องกรอกเบอร์โทรลูกค้า
-                              TextFormField(
-                                controller: _telcController,
-                                decoration: const InputDecoration(
-                                  labelText: 'เบอร์โทรลูกค้า:',
-                                  border: OutlineInputBorder(),
-                                ),
-                                keyboardType: TextInputType.phone,
-                                validator: (value) {
-                                  if (value == null || value.trim().isEmpty) {
-                                    return 'กรุณากรอกเบอร์โทรลูกค้า';
-                                  }
-                                  if (!RegExp(r'^[0-9]{10}$').hasMatch(value)) {
-                                    return 'กรุณากรอกเบอร์โทรให้ถูกต้อง (10 หลัก)';
-                                  }
-                                  return null;
-                                },
-                              ),
-
-                              const SizedBox(height: 16),
-                              TextFormField(
-                                controller: _addresscController,
-                                maxLines: 2,
-                                decoration: const InputDecoration(
-                                  labelText: 'ที่อยู่:',
-                                  border: OutlineInputBorder(),
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              TextFormField(
-                                controller: _rolecController,
-                                decoration: const InputDecoration(
-                                  labelText: 'อาชีพ:',
-                                  border: OutlineInputBorder(),
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              TextFormField(
-                                controller: _agecController,
-                                decoration: const InputDecoration(
-                                  labelText: 'อายุ:',
-                                  border: OutlineInputBorder(),
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              TextFormField(
-                                controller: _buycController,
-                                decoration: const InputDecoration(
-                                  labelText: 'ซื้อเอง/ฝากซื้อ:',
-                                  border: OutlineInputBorder(),
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              TextFormField(
-                                controller: _symptomcController,
-                                decoration: const InputDecoration(
-                                  labelText: 'อาการนำ:',
-                                  border: OutlineInputBorder(),
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              TextFormField(
-                                controller: _wherecController,
-                                decoration: const InputDecoration(
-                                  labelText: 'Where/Why:',
-                                  border: OutlineInputBorder(),
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              TextFormField(
-                                controller: _whencController,
-                                decoration: const InputDecoration(
-                                  labelText: 'When:',
-                                  border: OutlineInputBorder(),
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              TextFormField(
-                                controller: _hispillcController,
-                                decoration: const InputDecoration(
-                                  labelText: 'ประวัติการใช้ยา:',
-                                  border: OutlineInputBorder(),
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              TextFormField(
-                                controller: _hisdefpillcController,
-                                decoration: const InputDecoration(
-                                  labelText: 'ประวัติแพ้ยา:',
-                                  border: OutlineInputBorder(),
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              TextFormField(
-                                controller: _diagnosecController,
-                                decoration: const InputDecoration(
-                                  labelText: 'Diagnose การวินิจฉัย:',
-                                  border: OutlineInputBorder(),
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              TextFormField(
-                                controller: _detailController,
-                                decoration: const InputDecoration(
-                                  labelText: 'รายละเอียดอื่นๆ:',
-                                  border: OutlineInputBorder(),
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              TextFormField(
-                                controller: _healcController,
-                                decoration: const InputDecoration(
-                                  labelText: 'การรักษา:',
-                                  border: OutlineInputBorder(),
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              Row(
-                                children: [
+                                  // Select image button
                                   TextButton.icon(
-                                    onPressed: () => _selectDateTime(context),
-                                    icon: const Icon(Icons.calendar_today),
-                                    label: const Text("เลือกวันที่และเวลา:"),
+                                    onPressed: _pickImage,
+                                    icon: const Icon(Icons.image),
+                                    label: const Text("เลือกภาพ:"),
+                                  ),
+                                  const SizedBox(height: 16),
+
+                                  Center(
+                                    child: Column(
+                                      children: [
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              _selectedStatus = 'รอดำเนินการ';
+                                            });
+                                            _submitReport();
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 32.0,
+                                                vertical: 16.0),
+                                            backgroundColor:
+                                                Colors.red, // ปุ่มสีฟ้า
+                                          ),
+                                          child: const Text(
+                                            "บันทึกรายละเอียด (รอดำเนินการ)",
+                                            style: TextStyle(
+                                              fontFamily: Font_.Fonts_T,
+                                              fontSize: 18,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                            height: 10), // ระยะห่างระหว่างปุ่ม
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              _selectedStatus = 'เสร็จสิ้น';
+                                            });
+                                            _submitReport();
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 32.0,
+                                                vertical: 16.0),
+                                            backgroundColor:
+                                                Colors.green, // ปุ่มสีเขียว
+                                          ),
+                                          child: const Text(
+                                            "บันทึกรายละเอียด (ดำเนินการเสร็จสิ้น)",
+                                            style: TextStyle(
+                                              fontFamily: Font_.Fonts_T,
+                                              fontSize: 18,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 16),
-                              // Display the selected image file name
-                              if (_selectedImage != null)
-                                Text(
-                                  "ชื่อไฟล์: $_imageFileName", // Show the file name here",
-                                  style: const TextStyle(
-                                      fontSize: 16, color: Colors.black),
-                                ),
-
-                              // Select image button
-                              TextButton.icon(
-                                onPressed: _pickImage,
-                                icon: const Icon(Icons.image),
-                                label: const Text("เลือกภาพ:"),
-                              ),
-                              const SizedBox(height: 16),
-
-                              Center(
-                                child: Column(
-                                  children: [
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          _selectedStatus = 'รอดำเนินการ';
-                                        });
-                                        _submitReport();
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 32.0, vertical: 16.0),
-                                        backgroundColor:
-                                            Colors.red, // ปุ่มสีฟ้า
-                                      ),
-                                      child: const Text(
-                                        "บันทึกรายละเอียด (รอดำเนินการ)",
-                                        style: TextStyle(
-                                          fontFamily: Font_.Fonts_T,
-                                          fontSize: 18,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                        height: 10), // ระยะห่างระหว่างปุ่ม
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          _selectedStatus = 'เสร็จสิ้น';
-                                        });
-                                        _submitReport();
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 32.0, vertical: 16.0),
-                                        backgroundColor:
-                                            Colors.green, // ปุ่มสีเขียว
-                                      ),
-                                      child: const Text(
-                                        "บันทึกรายละเอียด (ดำเนินการเสร็จสิ้น)",
-                                        style: TextStyle(
-                                          fontFamily: Font_.Fonts_T,
-                                          fontSize: 18,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

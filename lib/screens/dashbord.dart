@@ -99,6 +99,67 @@ class _DashbordState extends State<Dashbord> {
     return monthCounts;
   }
 
+  Map<String, int> processDataByMonths(List<dynamic> reports) {
+    Map<String, int> monthCounts = {
+      '01': 0,
+      '02': 0,
+      '03': 0,
+      '04': 0,
+      '05': 0,
+      '06': 0,
+      '07': 0,
+      '08': 0,
+      '09': 0,
+      '10': 0,
+      '11': 0,
+      '12': 0,
+    };
+
+    for (var report in reports) {
+      String month = report['date'].split('-')[1]; // ดึงเดือนจาก 'date'
+      switch (month) {
+        case '01':
+          monthCounts['01'] = (monthCounts['01'] ?? 0) + 1;
+          break;
+        case '02':
+          monthCounts['02'] = (monthCounts['02'] ?? 0) + 1;
+          break;
+        case '03':
+          monthCounts['03'] = (monthCounts['03'] ?? 0) + 1;
+          break;
+        case '04':
+          monthCounts['04'] = (monthCounts['04'] ?? 0) + 1;
+          break;
+        case '05':
+          monthCounts['05'] = (monthCounts['05'] ?? 0) + 1;
+          break;
+        case '06':
+          monthCounts['06'] = (monthCounts['06'] ?? 0) + 1;
+          break;
+        case '07':
+          monthCounts['07'] = (monthCounts['07'] ?? 0) + 1;
+          break;
+        case '08':
+          monthCounts['08'] = (monthCounts['08'] ?? 0) + 1;
+          break;
+        case '09':
+          monthCounts['09'] = (monthCounts['09'] ?? 0) + 1;
+          break;
+        case '10':
+          monthCounts['10'] = (monthCounts['10'] ?? 0) + 1;
+          break;
+        case '11':
+          monthCounts['11'] = (monthCounts['11'] ?? 0) + 1;
+          break;
+        case '12':
+          monthCounts['12'] = (monthCounts['12'] ?? 0) + 1;
+          break;
+      }
+    }
+
+    return monthCounts;
+  }
+
   Map<String, int> processDataByType(List<dynamic> reports) {
     Map<String, int> typeCounts = {};
     for (var report in reports) {
@@ -134,137 +195,184 @@ class _DashbordState extends State<Dashbord> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[200],
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 2,
-              child: Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Sidebar(
-                  username: username,
-                  role: role,
-                  bottonColor: bottoncolor,
-                  onLogout: logout,
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              flex: 8,
-              child: Card(
-                elevation: 6,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // ปุ่มเลือกปี
-                        _buildYearSelector(),
-                        const SizedBox(height: 20),
-                        FutureBuilder<List<dynamic>>(
-                          future: fetchReports(),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const Center(
-                                  child: CircularProgressIndicator());
-                            } else if (snapshot.hasError) {
-                              return Center(
-                                child: Text(
-                                  "Error: ${snapshot.error}",
-                                  style: const TextStyle(color: Colors.red),
-                                ),
-                              );
-                            } else if (!snapshot.hasData ||
-                                snapshot.data!.isEmpty) {
-                              return const Center(
-                                child: Text(
-                                  "ไม่มีข้อมูลการแจ้งซ่อม",
-                                  style: TextStyle(fontSize: 18),
-                                ),
-                              );
-                            } else {
-                              final reports = snapshot.data!;
-                              final typeData = processDataByType(reports);
-                              final statusData = processDataByStatus(reports);
-
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _buildSectionTitle("จำนวนการติดตามลูกค้า"),
-                                  const SizedBox(height: 16),
-                                  _buildBarChartm(processDataByMonth(reports)),
-                                  const SizedBox(height: 20),
-                                  Row(
-                                    // mainAxisAlignment:
-                                    //     MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      // Expanded(
-                                      //   flex: 5,
-                                      //   child: Column(
-                                      //     crossAxisAlignment:
-                                      //         CrossAxisAlignment.start,
-                                      //     children: [
-                                      //       const Text(
-                                      //         "ประเภท",
-                                      //         style: TextStyle(
-                                      //           fontSize: 18,
-                                      //           fontWeight: FontWeight.bold,
-                                      //           color: Colors.black87,
-                                      //         ),
-                                      //       ),
-                                      //       const SizedBox(height: 16),
-                                      //       _buildBarChartt(typeData),
-                                      //     ],
-                                      //   ),
-                                      // ),
-                                      // const SizedBox(width: 30),
-                                      Expanded(
-                                        // flex: 5,
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            const SizedBox(height: 60),
-                                            const Text(
-                                              "สถานะดําเนินการ",
-                                              style: TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.black87,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 16),
-                                            _buildPieChart(statusData),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                                ],
-                              );
-                            }
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            bool isMobile = constraints.maxWidth < 1020;
+            return isMobile
+                ? AppBar(
+                    leading: Builder(
+                      builder: (context) {
+                        return IconButton(
+                          icon: const Icon(Icons.menu),
+                          onPressed: () {
+                            Scaffold.of(context).openDrawer();
                           },
+                        );
+                      },
+                    ),
+                  )
+                : const SizedBox.shrink();
+          },
+        ),
+      ),
+      drawer: LayoutBuilder(
+        builder: (context, constraints) {
+          bool isMobile = constraints.maxWidth < 1020;
+          return isMobile
+              ? Drawer(
+                  child: Sidebar(
+                    username: username,
+                    role: role,
+                    bottonColor: bottoncolor,
+                    onLogout: logout,
+                  ),
+                )
+              : Container();
+        },
+      ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          bool isMobile =
+              constraints.maxWidth < 1020; // เช็คว่าหน้าจอเล็กหรือใหญ่
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Sidebar
+                if (!isMobile) // แสดง Sidebar เฉพาะตอนที่หน้าจอใหญ่
+                  Expanded(
+                    flex: 2,
+                    child: Card(
+                      child: Sidebar(
+                        username: username,
+                        role: role,
+                        bottonColor: bottoncolor,
+                        onLogout: logout,
+                      ),
+                    ),
+                  ),
+                const SizedBox(width: 16),
+                Expanded(
+                  flex: 8,
+                  child: Card(
+                    elevation: 6,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // ปุ่มเลือกปี
+                            _buildYearSelector(),
+                            const SizedBox(height: 20),
+                            FutureBuilder<List<dynamic>>(
+                              future: fetchReports(),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Center(
+                                      child: CircularProgressIndicator());
+                                } else if (snapshot.hasError) {
+                                  return Center(
+                                    child: Text(
+                                      "Error: ${snapshot.error}",
+                                      style: const TextStyle(color: Colors.red),
+                                    ),
+                                  );
+                                } else if (!snapshot.hasData ||
+                                    snapshot.data!.isEmpty) {
+                                  return const Center(
+                                    child: Text(
+                                      "ไม่มีข้อมูลการแจ้งซ่อม",
+                                      style: TextStyle(fontSize: 18),
+                                    ),
+                                  );
+                                } else {
+                                  final reports = snapshot.data!;
+                                  // final typeData = processDataByType(reports);
+                                  final statusData =
+                                      processDataByStatus(reports);
+
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      _buildSectionTitle(
+                                          "จำนวนการติดตามลูกค้า"),
+                                      const SizedBox(height: 16),
+                                      isMobile
+                                          ? _buildBarChartm(
+                                              processDataByMonths(reports))
+                                          : _buildBarChartm(
+                                              processDataByMonth(reports)),
+                                      const SizedBox(height: 20),
+                                      Row(
+                                        // mainAxisAlignment:
+                                        //     MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          // Expanded(
+                                          //   flex: 5,
+                                          //   child: Column(
+                                          //     crossAxisAlignment:
+                                          //         CrossAxisAlignment.start,
+                                          //     children: [
+                                          //       const Text(
+                                          //         "ประเภท",
+                                          //         style: TextStyle(
+                                          //           fontSize: 18,
+                                          //           fontWeight: FontWeight.bold,
+                                          //           color: Colors.black87,
+                                          //         ),
+                                          //       ),
+                                          //       const SizedBox(height: 16),
+                                          //       _buildBarChartt(typeData),
+                                          //     ],
+                                          //   ),
+                                          // ),
+                                          // const SizedBox(width: 30),
+                                          Expanded(
+                                            // flex: 5,
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                const SizedBox(height: 60),
+                                                const Text(
+                                                  "สถานะดําเนินการ",
+                                                  style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.black87,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 16),
+                                                _buildPieChart(statusData),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    ],
+                                  );
+                                }
+                              },
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
