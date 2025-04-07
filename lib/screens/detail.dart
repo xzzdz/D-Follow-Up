@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hotel_web/screens/home.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -54,16 +55,6 @@ class _DetailState extends State<Detail> {
       );
 
       var data = json.decode(response.body);
-
-      if (data['status'] == "success") {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('อัปเดตข้อมูลเรียบร้อย')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('เกิดข้อผิดพลาด: ${data['message']}')),
-        );
-      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('เกิดข้อผิดพลาด: $e')),
@@ -176,12 +167,20 @@ class _DetailState extends State<Detail> {
             bool isMobile = constraints.maxWidth < 1020;
             return isMobile
                 ? AppBar(
+                    backgroundColor: bottoncolor,
                     leading: Builder(
                       builder: (context) {
                         return IconButton(
-                          icon: const Icon(Icons.menu),
+                          icon: const Icon(Icons.arrow_back),
+                          color: Colors.white,
                           onPressed: () {
-                            Scaffold.of(context).openDrawer();
+                            // Scaffold.of(context).openDrawer();
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const HomepageWeb(),
+                              ),
+                            );
                           },
                         );
                       },
@@ -303,10 +302,10 @@ class _DetailState extends State<Detail> {
                                     'Where/Why', widget.item['wherec']),
                                 _buildDetailItem('When', widget.item['whenc']),
                                 const SizedBox(height: 16),
-                                _buildEditableDetailItem("ประวัติการใช้ยา",
-                                    widget.item['hispillc'], "hispillc"),
-                                _buildEditableDetailItem("ประวัติแพ้ยา",
-                                    widget.item['hisdefpillc'], "hisdefpillc"),
+                                _buildDetailItem(
+                                    "ประวัติการใช้ยา", widget.item['hispillc']),
+                                _buildDetailItem(
+                                    "ประวัติแพ้ยา", widget.item['hisdefpillc']),
                                 const SizedBox(height: 16),
                                 _buildDetailItem(
                                     'วันที่ เวลา บันทึก', widget.item['date']),
@@ -319,6 +318,36 @@ class _DetailState extends State<Detail> {
                                     'รายละเอียดอื่นๆ', widget.item['detail']),
 
                                 _buildDetailItem('สถานะ', currentStatus ?? '-'),
+
+                                const SizedBox(height: 16),
+                                _buildDetailItem(
+                                    "Patient ED", widget.item['ped']),
+                                _buildDetailItem("Plan", widget.item['plan']),
+                                _buildDetailItem(
+                                    "Follow", widget.item['follow']),
+                                _buildDetailItem(
+                                    "Plan หลัง F/U", widget.item['pfu']),
+                                const SizedBox(height: 16),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Container(
+                                    alignment: Alignment.centerLeft,
+                                    child: ElevatedButton.icon(
+                                      icon:
+                                          Icon(Icons.edit, color: Colors.white),
+                                      label: const Text(
+                                        'แก้ไขรายละเอียด',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                          backgroundColor: bottoncolor),
+                                      onPressed: _showEditAllDialog,
+                                    ),
+                                  ),
+                                ),
 
                                 const SizedBox(height: 16),
 
@@ -365,6 +394,7 @@ class _DetailState extends State<Detail> {
                                           ],
                                         ),
                                 ),
+                                const SizedBox(height: 20),
                               ],
                             ),
                           ),
@@ -378,6 +408,102 @@ class _DetailState extends State<Detail> {
           );
         },
       ),
+    );
+  }
+
+  final fieldLabels = {
+    'diagnosec': 'Diagnose การวินิจฉัย',
+    'healc': 'วิธีการรักษา',
+    'detailheal': 'รายละเอียดการรักษา',
+    'namec': 'ชื่อลูกค้า',
+    'telc': 'เบอร์โทรศัพท์',
+    'addressc': 'ที่อยู่',
+    'rolec': 'สถานะ',
+    'agec': 'อายุ',
+    'buyc': 'ซื้อเอง/ฝากซื้อ',
+    'symptomc': 'อาการนำ',
+    'wherec': 'Where/Why',
+    'whenc': 'When',
+    'hispillc': 'ประวัติการใช้ยา',
+    'hisdefpillc': 'ประวัติแพ้ยา',
+    'detail': 'รายละเอียดอื่นๆ',
+    'ped': 'Patient ED',
+    'plan': 'Plan',
+    'follow': 'Follow',
+    'pfu': 'Plan หลัง F/U',
+  };
+
+  void _showEditAllDialog() {
+    Map<String, TextEditingController> controllers = {
+      'diagnosec': TextEditingController(text: widget.item['diagnosec']),
+      'healc': TextEditingController(text: widget.item['healc']),
+      'detailheal': TextEditingController(text: widget.item['detailheal']),
+      'namec': TextEditingController(text: widget.item['namec']),
+      'telc': TextEditingController(text: widget.item['telc']),
+      'addressc': TextEditingController(text: widget.item['addressc']),
+      'rolec': TextEditingController(text: widget.item['rolec']),
+      'agec': TextEditingController(text: widget.item['agec']),
+      'buyc': TextEditingController(text: widget.item['buyc']),
+      'symptomc': TextEditingController(text: widget.item['symptomc']),
+      'wherec': TextEditingController(text: widget.item['wherec']),
+      'whenc': TextEditingController(text: widget.item['whenc']),
+      'hispillc': TextEditingController(text: widget.item['hispillc']),
+      'hisdefpillc': TextEditingController(text: widget.item['hisdefpillc']),
+      'detail': TextEditingController(text: widget.item['detail']),
+      'ped': TextEditingController(text: widget.item['ped']),
+      'plan': TextEditingController(text: widget.item['plan']),
+      'follow': TextEditingController(text: widget.item['follow']),
+      'pfu': TextEditingController(text: widget.item['pfu']),
+    };
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("แก้ไขรายละเอียด"),
+          content: SingleChildScrollView(
+            child: Column(
+              children: controllers.entries.map((entry) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: TextField(
+                    controller: entry.value,
+                    decoration: InputDecoration(
+                      labelText:
+                          fieldLabels[entry.key], // หรือจะแปลงเป็นภาษาไทยก็ได้
+                      border: const OutlineInputBorder(),
+                    ),
+                    maxLines: null,
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("ยกเลิก"),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+              onPressed: () {
+                setState(() {
+                  controllers.forEach((key, controller) {
+                    final newValue = controller.text;
+                    widget.item[key] = newValue;
+                    _updateHistory(key, newValue);
+                  });
+                });
+                Navigator.of(context).pop();
+              },
+              child:
+                  const Text("บันทึก", style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -564,7 +690,7 @@ class _DetailState extends State<Detail> {
 
   Future<void> logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    await prefs.remove('isLoggedIn_project1');
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const Login()),

@@ -1,6 +1,6 @@
 class Api {
   static const String baseUrl =
-      "http://192.168.1.10/d_follow_up_php/"; //เปลี่ยนเป็น IP
+      "https://dzentric.com/D_project/d_follow_up_php/";
   static const String getCustomers = "${baseUrl}get_customers.php";
   static const String add_report = "${baseUrl}add_report.php";
   static const String report = "${baseUrl}report.php";

@@ -529,7 +529,7 @@ class _ProfileState extends State<Profile> {
 
   Future logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    await prefs.remove('isLoggedIn_project1');
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(

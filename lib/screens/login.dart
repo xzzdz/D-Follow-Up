@@ -59,7 +59,8 @@ class _LoginState extends State<Login> {
       if (role == "ผู้ดูแลระบบ" || role == "พนักงาน") {
         // บันทึกชื่อผู้ใช้ลงใน shared_preferences
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setBool('isLoggedIn', true);
+        // await prefs.setBool('isLoggedIn', true);
+        await prefs.setBool('isLoggedIn_project1', true);
         await prefs.setString('email', email.text);
         await prefs.setString('name', data['name']); // บันทึกค่าชื่อผู้ใช้
         await prefs.setString('role', data['role']); // บันทึกค่าชื่อผู้ใช้

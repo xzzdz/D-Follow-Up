@@ -10,7 +10,8 @@ void main() async {
 
   // ตรวจสอบสถานะการล็อกอิน
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+  // bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+  bool isLoggedIn = prefs.getBool('isLoggedIn_project1') ?? false;
 
   runApp(MyApp(isLoggedIn: isLoggedIn));
 }

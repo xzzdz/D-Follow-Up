@@ -297,7 +297,7 @@ class _AddUsersState extends State<ManageUsers> {
                                 child: DropdownButtonFormField<String>(
                                   value: selectedRole,
                                   decoration: const InputDecoration(
-                                    labelText: 'ค้นหาตำแหน่งงาน',
+                                    labelText: 'ค้นหาจากตำแหน่ง',
                                   ),
                                   items: roles.map((role) {
                                     return DropdownMenuItem<String>(
@@ -1051,7 +1051,7 @@ class _AddUsersState extends State<ManageUsers> {
 
   Future logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    await prefs.remove('isLoggedIn_project1');
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(

@@ -97,20 +97,23 @@ class Sidebar extends StatelessWidget {
             },
           ),
           const Divider(),
-          ListTile(
-            leading: const Icon(Icons.add),
-            title: const Text("เพิ่มรายละเอียด",
-                style: TextStyle(fontFamily: Font_.Fonts_T)),
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const AddReport(),
-                ),
-              );
-            },
-          ),
-          const Divider(),
+          // if (role == "ผู้ดูแลระบบ" || role == "พนักงาน") ...[
+          //   ListTile(
+          //     leading: const Icon(Icons.add),
+          //     title: const Text("เพิ่มรายละเอียด",
+          //         style: TextStyle(fontFamily: Font_.Fonts_T)),
+          //     onTap: () {
+          //       Navigator.pushReplacement(
+          //         context,
+          //         MaterialPageRoute(
+          //           builder: (context) => const AddReport(),
+          //         ),
+          //       );
+          //     },
+          //   ),
+          //   const Divider(),
+          // ],
+
           ListTile(
             leading: const Icon(Icons.add),
             title: const Text("ทะเบียนลูกค้า",
@@ -124,20 +127,7 @@ class Sidebar extends StatelessWidget {
               );
             },
           ),
-          // const Divider(),
-          // ListTile(
-          //   leading: const Icon(Icons.border_color),
-          //   title: const Text("เพิ่มประเภทการแจ้งซ่อม",
-          //       style: TextStyle(fontFamily: Font_.Fonts_T)),
-          //   onTap: () {
-          //     Navigator.pushReplacement(
-          //       context,
-          //       MaterialPageRoute(
-          //         builder: (context) => const AddType(),
-          //       ),
-          //     );
-          //   },
-          // ),
+
           const Divider(),
           // เงื่อนไขสำหรับการแสดงเมนูจัดการผู้ใช้งาน
           if (role == "ผู้ดูแลระบบ" || role == "พนักงาน") ...[
