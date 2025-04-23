@@ -1,6 +1,11 @@
 class Api {
   static const String baseUrl =
-      "https://dzentric.com/D_project/d_follow_up_php/";
+      "https://dzentric.com/D_project/sripingpharmacy/";
+
+  // "https://dzentric.com/D_project/mupharmacy/";
+  // "https://dzentric.com/D_project/sripingpharmacy/";
+
+  // "https://dzentric.com/D_project/d_follow_up_php/";
   static const String getCustomers = "${baseUrl}get_customers.php";
   static const String add_report = "${baseUrl}add_report.php";
   static const String report = "${baseUrl}report.php";

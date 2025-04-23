@@ -289,7 +289,7 @@ class _DashbordState extends State<Dashbord> {
                                     snapshot.data!.isEmpty) {
                                   return const Center(
                                     child: Text(
-                                      "ไม่มีข้อมูลการแจ้งซ่อม",
+                                      "ไม่มีข้อมูล",
                                       style: TextStyle(fontSize: 18),
                                     ),
                                   );

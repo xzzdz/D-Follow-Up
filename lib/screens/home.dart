@@ -1242,7 +1242,55 @@ class _HomepageWebState extends State<HomepageWeb> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('บันทึกรายละเอียดการติดตาม'),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ปุ่มรีเซ็ตอยู่ด้านบน
+              Align(
+                alignment: Alignment.topRight,
+                child: TextButton(
+                  child: const Text(
+                    'รีเฟรชข้อมูล',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                  onPressed: () {
+                    _formKey.currentState?.reset();
+                    setState(() {
+                      _namecController.clear();
+                      _telcController.clear();
+                      _addresscController.clear();
+                      _rolecController.clear();
+                      _agecController.clear();
+                      _buycController.clear();
+                      _symptomcController.clear();
+                      _wherecController.clear();
+                      _whencController.clear();
+                      _hispillcController.clear();
+                      _hisdefpillcController.clear();
+                      _diagnosecController.clear();
+                      _detailController.clear();
+                      _healcController.clear();
+                      _pedController.clear();
+                      _planController.clear();
+                      _followController.clear();
+                      _pfuController.clear();
+                      _selectedImage = null;
+                      _imageFileName = '';
+                    });
+                  },
+                ),
+              ),
+
+              // หัวข้อหลักอยู่ด้านล่าง
+              const Text(
+                'บันทึกรายละเอียดการติดตาม',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
           content: SingleChildScrollView(
             child: SizedBox(
               width: MediaQuery.of(context).size.width * 0.3, // ปรับขนาดให้พอดี

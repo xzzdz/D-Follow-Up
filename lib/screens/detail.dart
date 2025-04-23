@@ -241,10 +241,10 @@ class _DetailState extends State<Detail> {
                             color: bottoncolor,
                             borderRadius: BorderRadius.circular(12.0),
                           ),
-                          child: const ListTile(
-                            leading: Icon(Icons.report,
+                          child: ListTile(
+                            leading: const Icon(Icons.report,
                                 size: 40, color: Colors.white),
-                            title: Text(
+                            title: const Text(
                               'รายละเอียดการติดตาม',
                               style: TextStyle(
                                 fontSize: 26,
@@ -252,14 +252,22 @@ class _DetailState extends State<Detail> {
                                 color: Colors.white,
                               ),
                             ),
-                            // subtitle: Text(
-                            //   'แสดงข้อมูลการแจ้งซ่อม',
-                            //   style: TextStyle(color: Colors.white70),
-                            // ),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.close,
+                                  color: Colors.white, size: 28),
+                              onPressed: () {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const HomepageWeb(),
+                                  ),
+                                );
+                              },
+                            ),
                           ),
                         ),
                         const SizedBox(height: 16),
-                        // การ์ดแสดงรายละเอียดแจ้งซ่อม
+
                         Expanded(
                           child: Container(
                             padding: const EdgeInsets.all(16.0),
@@ -418,7 +426,7 @@ class _DetailState extends State<Detail> {
     'namec': 'ชื่อลูกค้า',
     'telc': 'เบอร์โทรศัพท์',
     'addressc': 'ที่อยู่',
-    'rolec': 'สถานะ',
+    'rolec': 'อาชีพ',
     'agec': 'อายุ',
     'buyc': 'ซื้อเอง/ฝากซื้อ',
     'symptomc': 'อาการนำ',
@@ -646,9 +654,81 @@ class _DetailState extends State<Detail> {
     );
   }
 
+  // Widget _buildActionButtonsuccess(String label, String newStatus) {
+  //   return ElevatedButton(
+  //     onPressed: () => _updateStatus(newStatus),
+  //     style: ElevatedButton.styleFrom(
+  //       backgroundColor: Colors.green,
+  //       padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+  //       shape: RoundedRectangleBorder(
+  //         borderRadius: BorderRadius.circular(12),
+  //       ),
+  //     ),
+  //     child: Text(
+  //       label,
+  //       style: const TextStyle(
+  //         fontSize: 18,
+  //         color: Colors.black,
+  //         fontFamily: Font_.Fonts_T,
+  //       ),
+  //     ),
+  //   );
+  // }
+
+  // Widget _buildActionButton(String label, String newStatus) {
+  //   return ElevatedButton(
+  //     onPressed: () => _updateStatus(newStatus),
+  //     style: ElevatedButton.styleFrom(
+  //       backgroundColor: Colors.yellow,
+  //       padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+  //       shape: RoundedRectangleBorder(
+  //         borderRadius: BorderRadius.circular(12),
+  //       ),
+  //     ),
+  //     child: Text(
+  //       label,
+  //       style: const TextStyle(
+  //         fontSize: 18,
+  //         color: Colors.black,
+  //         fontFamily: Font_.Fonts_T,
+  //       ),
+  //     ),
+  //   );
+  // }
+
   Widget _buildActionButtonsuccess(String label, String newStatus) {
     return ElevatedButton(
-      onPressed: () => _updateStatus(newStatus),
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('ยืนยันการดำเนินการ'),
+              content:
+                  Text('คุณต้องการเปลี่ยนสถานะเป็น "$newStatus" ใช่หรือไม่?'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('ยกเลิก'),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // ปิด dialog
+                  },
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                  ),
+                  child: const Text('ยืนยัน',
+                      style: TextStyle(color: Colors.white)),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // ปิด dialog ก่อน
+                    _updateStatus(newStatus); // เรียกฟังก์ชันอัปเดตสถานะ
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.green,
         padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
@@ -669,7 +749,39 @@ class _DetailState extends State<Detail> {
 
   Widget _buildActionButton(String label, String newStatus) {
     return ElevatedButton(
-      onPressed: () => _updateStatus(newStatus),
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('ยืนยันการดำเนินการ'),
+              content:
+                  Text('คุณต้องการเปลี่ยนสถานะเป็น "$newStatus" ใช่หรือไม่?'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text(
+                    'ยกเลิก',
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // ปิด dialog
+                  },
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                  ),
+                  child: const Text('ยืนยัน',
+                      style: TextStyle(color: Colors.white)),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // ปิด dialog ก่อน
+                    _updateStatus(newStatus); // เรียกฟังก์ชันอัปเดตสถานะ
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.yellow,
         padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
