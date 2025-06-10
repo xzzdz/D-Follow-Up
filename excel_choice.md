@@ -1,4 +1,4 @@
-  sheet.getRangeByName('A${index + 1}').cellStyle = globalStyle220;
+      sheet.getRangeByName('A${index + 1}').cellStyle = globalStyle220;
       sheet.getRangeByName('B${index + 1}').cellStyle = globalStyle220;
       sheet.getRangeByName('C${index + 1}').cellStyle = globalStyle220;
       sheet.getRangeByName('D${index + 1}').cellStyle = globalStyle220;
@@ -292,9 +292,9 @@
       sheet.getRangeByName('BA${index + 7}').cellStyle = numberColor;
       sheet.getRangeByName('BB${index + 7}').cellStyle = numberColor;
 
-////////----------------------->
+    ////////----------------------->
 
-////////----------------------->
+    ////////----------------------->
       sheet.getRangeByName('A${index + 7}').setText('${index + 1}');
       sheet
           .getRangeByName('B${index + 7}')
@@ -667,7 +667,7 @@
       indextotol = indextotol + 1;
     }
 
-/////////---------------------------->
+    /////////---------------------------->
     sheet.getRangeByName('Q${indextotol + 7 + 0}').setText('รวมทั้งหมด: ');
     sheet
         .getRangeByName('R${indextotol + 7 + 0}')
